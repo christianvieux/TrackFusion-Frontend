@@ -15,6 +15,6 @@ export const fetchTrackAttributes = async () => {
     const response = await axios.get('/api/enums/trackAttributes');
     return response.data;
   } catch (error) {
-    throw new Error('Failed to fetch track attributes');
+    throw new Error(`Failed to fetch track attributes: ${error}`);
   }
 };

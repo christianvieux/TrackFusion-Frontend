@@ -47,7 +47,7 @@ export default function Search_Input({
         label: "!text-current font-bold",
         input: [
           "bg-transparent",
-          "text-black/90 dark:text-white/90",
+          "text-white/90",
           "placeholder:text-currentColor",
         ],
       }}

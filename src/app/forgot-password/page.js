@@ -4,12 +4,12 @@
 
 "use client";
 import React, { useState } from "react";
-import { Input } from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
 import { useRouter } from "next/navigation";
 import { forgotPassword } from "../services/auth";
+import CustomInput from "../components/CustomInput";
 
-export default function () {
+export default function ForgotPasswordPage() {
   const [message, setMessage] = useState('');
   const [ successful , setSuccessful ] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -40,15 +40,11 @@ return (
             <p className="text-center">Remember your password? <a href="/login" className="self-end text-green-light">
                 Log in here
             </a></p>
-            <Input
+            <CustomInput
                 name="email"
-                className=""
                 classNames={{
                     base: "w-auto",
-                    inputWrapper:
-                        "group-data-[focus=true]:bg-gray-darker/50 data-[hover=true]:bg-gray-darker/50 bg-black border-4 border-gray-darkest w-auto",
-                    input: "group-data-[has-value=true]:text-green",
-                    // label: "text-pink group-data-[filled-within=true]:text-green",
+                    inputWrapper:"bg-black w-auto",
                 }}
                 fullWidth={false}
                 type="email"

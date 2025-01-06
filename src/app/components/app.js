@@ -33,7 +33,7 @@ const DrawerModal = () => {
   <>
     <Button className="sm:hidden text-pink" isIconOnly variant="light" onPress={onOpen}><Menu /></Button>
     
-    <Drawer className="text-pink teeeeeeeeest w-max bg-transparent" classNames={{"closeButton": "text-pink z-10"}} placement="left" isOpen={isOpen} onOpenChange={onOpenChange}>
+    <Drawer className="text-pink w-max bg-transparent" classNames={{"closeButton": "text-pink z-10"}} placement="left" isOpen={isOpen} onOpenChange={onOpenChange}>
       <DrawerContent>
         {(onClose) => (
           <>

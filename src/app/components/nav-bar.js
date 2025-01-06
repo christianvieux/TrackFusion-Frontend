@@ -66,7 +66,7 @@ export default function NavBar(
         {LeftContent}
         {/* Displaying which page the user is on */}
         <NavbarItem>
-          <span className="flex-1 self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
+          <span className="flex-1 self-center whitespace-nowrap text-2xl font-semibold text-white">
             {displayName}
           </span>
         </NavbarItem>
