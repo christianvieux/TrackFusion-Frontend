@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer components {
+    .sidebarOptionIsActive {
+      @apply bg-purple-dark;
+    }
+    .trackIsBeingHovered {
+      @apply scale-102;
+    }
+  }
+
+
+  /* Carousel (needed)*/
+  .embla {
+    overflow: hidden;
+  }
+  .embla__container {
+    display: flex;
+  }
+  .embla__slide {
+    flex: 0 0 100%;
+    /* min-width: 0; */
+  }
+  
