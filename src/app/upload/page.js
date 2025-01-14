@@ -73,6 +73,7 @@ function UploadPage() {
   });
   const [track_attributes_list, setTrackAttributesList] = useState({});
   const [error, setError] = useState(null);
+  const [trackNameError, setTrackNameError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const isFormInvalid =
     isUploading ||
@@ -81,7 +82,32 @@ function UploadPage() {
     Object.values(trackMetadata).some(
       (meta, key) =>
         key !== "bpm" && typeof meta === "string" && meta.trim() === "",
-    );
+    ) || trackNameError !== null;
+
+  const validateTrackName = (name) => {
+    const MIN_LENGTH = 3;
+    const MAX_LENGTH = 100;
+    const sanitized = name.trim();
+    
+    if (sanitized.length < MIN_LENGTH) {
+      return { isValid: false, error: `Track name must be at least ${MIN_LENGTH} characters` };
+    }
+    if (sanitized.length > MAX_LENGTH) {
+      return { isValid: false, error: `Track name must be less than ${MAX_LENGTH} characters` };
+    }
+    // Allow letters, numbers, spaces and basic punctuation
+    if (!/^[a-zA-Z0-9\s\-_.,!'"`()]+$/.test(sanitized)) {
+      return { isValid: false, error: "Track name contains invalid characters" };
+    }
+    return { isValid: true, sanitized };
+  };
+
+  const handleTrackNameChange = (newName) => {
+    setTrackName(newName);
+
+    const { isValid, error } = validateTrackName(newName);
+    setTrackNameError(isValid ? null : error);
+  };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -90,7 +116,7 @@ function UploadPage() {
     if (file) {
       if (ALLOWED_AUDIO_TYPES.includes(file.type)) {
         setTrackFile(file);
-        setTrackName(file.name.replace(/\.[^/.]+$/, ""));
+        handleTrackNameChange(file.name.replace(/\.[^/.]+$/, ""));
         setError(null);
       } else {
         setError(`Please upload a valid audio file: ${ALLOWED_AUDIO_TYPES.map(type => '.' + type.split('/')[1]).join(', ')}`);
@@ -110,12 +136,24 @@ function UploadPage() {
 
   const handleUpload = async (e) => {
     e.preventDefault();
+    setError(null);
+    setSuccessMessage(null);
+    
+    // Basic validation
     if (!trackFile) {
       setError("Please select a track file.");
       return;
     }
+
     if (trackName.trim() === "") {
       setError("Please enter a track name.");
+      return;
+    }
+
+    // Validate track name
+    const { isValid, error, sanitized } = validateTrackName(trackName);
+    if (!isValid) {
+      setError(error);
       return;
     }
 
@@ -124,7 +162,6 @@ function UploadPage() {
       return;
     }
     setIsUploading(true);
-    setError(null);
 
     console.log("Track File:", trackFile);
     console.log("Track Name:", trackName);
@@ -159,7 +196,7 @@ function UploadPage() {
   const handleCancel = () => {
     setTrackFile(null);
     setImageFile(null);
-    setTrackName("");
+    handleTrackNameChange("");
     setTrackDescription("");
   };
 
@@ -259,8 +296,10 @@ function UploadPage() {
             variant="faded"
             label="Track Name"
             value={trackName}
-            onChange={(e) => setTrackName(e.target.value)}
+            onChange={(e) => handleTrackNameChange(e.target.value)}
             isDisabled={isUploading}
+            isInvalid={trackNameError}
+            errorMessage={trackNameError}
           />
           {/* Description */}
           <Textarea

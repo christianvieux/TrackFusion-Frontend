@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from "react";
 import EmblaCarousel from "../carousel/EmblaCarousel.jsx";
 import Link from "next/link";
-import Image from 'next/image';
+import Image from "next/image";
 
 const SLIDES = [
   // {/* Title */}
-  <div key="title" className="z-50 *:z-50 flex flex-col gap-5 p-4">
+  <div key="title" className="z-50 flex flex-col gap-5 p-4 *:z-50">
     <h1 className="pb-5 text-5xl font-semibold text-blue-light">
       Discover and Share Your Soundtrack
     </h1>
@@ -37,53 +37,54 @@ const SLIDES = [
     </div>
   </div>,
   // {/* Feature Highlights:x */}
-  <div key="feature-highlights" className="z-50 *:z-50 text-center">
+  <div key="feature-highlights" className="z-50 text-center *:z-50">
     <h2 className="mb-20 text-4xl font-semibold text-blue-light">
       Project Features
     </h2>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-7xl mx-auto">
+    <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 md:grid-cols-2">
       {[
         {
           feature: "Audio Upload System",
-          description: "Upload and manage your audio files with support for WAV, MP3, and other common formats.",
+          description:
+            "Upload and manage your audio files with support for WAV, MP3, and other common formats.",
           icon: "🎵",
         },
         {
           feature: "Smart Search",
-          description: "Find the perfect track using our advanced search with filters for genre, mood, and more.",
+          description:
+            "Find the perfect track using our advanced search with filters for genre, mood, and more.",
           icon: "🔍",
         },
         {
           feature: "Content Management",
-          description: "Organize your audio files with custom tags, collections, and playlists.",
+          description:
+            "Organize your audio files with custom tags, collections, and playlists.",
           icon: "📂",
         },
         {
           feature: "Community Features",
-          description: "Connect with other creators, share your work, and collaborate on projects.",
+          description:
+            "Connect with other creators, share your work, and collaborate on projects.",
           icon: "👥",
         },
       ].map(({ feature, description, icon }, index) => (
         <div
           key={`feature-${index}`}
-          className="flex items-start p-8 bg-gradient-to-br from-purple-light/20 to-purple-dark/20 rounded-2xl backdrop-blur-sm 
-                     transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple/20"
+          className="flex items-start rounded-2xl bg-gradient-to-br from-purple-light/20 to-purple-dark/20 p-8 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple/20"
         >
-          <span className="text-5xl mr-6">{icon}</span>
+          <span className="mr-6 text-5xl">{icon}</span>
           <div className="text-left">
-            <h3 className="text-2xl font-semibold text-blue-light mb-3">
+            <h3 className="mb-3 text-2xl font-semibold text-blue-light">
               {feature}
             </h3>
-            <p className="text-blue-dark/90 leading-relaxed">
-              {description}
-            </p>
+            <p className="leading-relaxed text-blue-dark/90">{description}</p>
           </div>
         </div>
       ))}
     </div>
   </div>,
   // {/* How It Works Section: */}
-  <div key="How_It_Works" className="z-50 *:z-50 text-center">
+  <div key="How_It_Works" className="z-50 text-center *:z-50">
     <p className="mb-16 text-4xl font-semibold text-blue-light">
       How It Works.
     </p>
@@ -104,8 +105,7 @@ const SLIDES = [
         // Browse and Listen
         {
           step: "Browse & Listen",
-          description:
-            "Discover and listen to audio tracks from other users.",
+          description: "Discover and listen to audio tracks from other users.",
           image: "/illustrations/Listen.png",
         },
         {
@@ -128,18 +128,18 @@ const SLIDES = [
             {/* Illustration */}
             <div className="mb-4 mt-4">
               <Image
-          src={image}
-          alt={`${step} illustration`}
-          width={180}
-          height={180}
-          className="object-contain"
+                src={image}
+                alt={`${step} illustration`}
+                width={180}
+                height={180}
+                className="object-contain"
               />
             </div>
 
             {/* Content */}
             <div className="text-center">
               <h3 className="mb-3 text-2xl font-semibold text-blue-light">
-          {step}
+                {step}
               </h3>
               <p className="text-sm text-blue-dark">{description}</p>
             </div>
@@ -157,20 +157,25 @@ export default function Home() {
   const SLIDE_COUNT = 5;
 
   return (
-      <div id="home" className="relative size-full text-white">
-        {/* Carousel */}
-        <EmblaCarousel
-          slides={SLIDES}
-          options={OPTIONS}
-          custom_settings={custom_settings}
-          className="z-10"
-        />
+    <div id="home" className="overflow-w-hidden relative text-white">
+      {/* Carousel */}
+      <EmblaCarousel
+        slides={SLIDES}
+        options={OPTIONS}
+        custom_settings={custom_settings}
+        className="overflow-auto !z-20"
+      />
 
-        <div className="night absolute !z-0">
+      <div id="shooting_stars_container" className="pointer-events-none !z-0 size-full top-0 absolute overflow-hidden">
+        <div
+          className="night pointer-events-none !inset-x-0 !-top-[450px] !z-0 md:!-top-[500px] sm:!-top-[300px] lg:!-top-[100px] overflow-hidden"
+          style={{ position: "absolute", minHeight: "100%" }}
+        >
           {Array.from({ length: 20 }).map((_, i) => (
-            <div key={i} className="!z-0 *:z-0 shooting_star"></div>
+            <div key={i} className="shooting_star !z-0 *:z-0"></div>
           ))}
         </div>
       </div>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 // src/app/reset-password/[token]/page.js
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { resetPassword, verifyResetToken } from "../../services/auth";
 import { Input, Button } from "@nextui-org/react";
 import { EyeFilledIcon } from "../../components/Icons/EyeFilledIcon";
@@ -75,6 +75,7 @@ const ResetPasswordForm = ({
 );
 
 export default function ResetPassword({ params }) {
+  const unwrappedParams = React.use(params);
   const [state, setState] = useState({
     newPassword: "",
     confirmPassword: "",
@@ -94,10 +95,10 @@ export default function ResetPassword({ params }) {
     loading,
     tokenValid,
   } = state;
-  const { token } = params;
+  const { token } = unwrappedParams;
 
-  const setField = (field, value) =>
-    setState((prevState) => ({ ...prevState, [field]: value }));
+  const setField = useCallback((field, value) =>
+    setState((prevState) => ({ ...prevState, [field]: value })), []);
   const toggleVisibility = () => setField("hidePassword", !hidePassword);
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -117,7 +118,7 @@ export default function ResetPassword({ params }) {
     }
     setField("loading", false);
   };
-  const verifyToken = async (token) => {
+  const verifyToken = useCallback(async (token) => {
     try {
       await verifyResetToken(token);
       setField("tokenValid", true);
@@ -125,11 +126,11 @@ export default function ResetPassword({ params }) {
       setField("message", `Unable to reset password. ${error.message}`);
       setField("tokenValid", false);
     }
-  };
+  }, [setField]);
 
   useEffect(() => {
     verifyToken(token);
-  }, [token]);
+  }, [token, verifyToken]);
 
   return (
     <div className="flex flex-col items-center justify-between gap-4 self-center rounded-lg border-2 border-purple-dark bg-green-darkest/30 p-4 text-green shadow-lg">
