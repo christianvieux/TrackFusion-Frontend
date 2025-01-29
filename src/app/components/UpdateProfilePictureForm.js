@@ -72,15 +72,12 @@ function ProfilePictureUpload({
     setError(null);
 
     try {
-      // Create FormData to send the file
-      const formData = new FormData();
-      formData.append("imageFile", imageFile);
+      const response = await updateProfilePicture(imageFile, (state, progress) => {
+        // Optional: Handle upload state changes
+        console.log('Upload state:', state, progress);
+      });
 
-      // Call the onSubmit prop with the form data
-      const response = await updateProfilePicture(formData)
-      // Calling submit callback
       await onSubmit(response)
-
       // Reset state after successful upload
       setImageFile(null);
     } catch (error) {

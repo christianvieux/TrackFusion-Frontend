@@ -10,10 +10,10 @@ function InitialProfilePictureSetup() {
   const router = useRouter();
   const { userInfo, setUserInfo } = useUserInfo();
 
-  const handleProfilePictureSubmit = async (data) => {
+  const handleProfilePictureSubmit = async (newUrl) => {
     try {
       setUserInfo((prev) => {
-        const updatedUrl = `${data?.url}?v=${new Date().getTime()}`;
+        const updatedUrl = `${newUrl}?v=${new Date().getTime()}`;
         return { ...prev, profile_picture_url: updatedUrl };
       });
       router.push("/feed");

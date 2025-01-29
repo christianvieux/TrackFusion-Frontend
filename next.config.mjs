@@ -10,13 +10,20 @@ const nextConfig = {
     ];
   },
   images: {
+    domains: ['trackfusionweb-storage.s3.us-east-2.amazonaws.com'],
     remotePatterns: [
-      {
+      { // azure
         protocol: "https",
         hostname: "useraudiostorage.blob.core.windows.net",
         port: "",
         pathname: "/**",
       },
+      { // aws
+        protocol: "https",
+        hostname: "trackfusionweb-storage.s3.amazonaws.com",
+        port: "",
+        pathname: "/**",
+      }
     ],
   },
 };
