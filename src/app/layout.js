@@ -37,23 +37,6 @@ export default function RootLayout({
   );
   const cssFiles = css_routes[matchedRoute] || ["/css/default.css"];
 
-
-  if (MAINTENANCE_MODE) {
-    return (
-      <html lang="en">
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          {cssFiles.map((route) => (
-          <link key={route} rel="stylesheet" href={route} />
-        ))}
-        </head>
-        <body className="h-screen bg-green-darkest">
-          {children}
-        </body>
-      </html>
-    );
-  }
-
   return (
     <html lang="en">
       <head>
@@ -70,7 +53,7 @@ export default function RootLayout({
         <Providers>
           <SessionProvider>
             <UserInfoProvider>
-              <App>{children}</App>
+              {MAINTENANCE_MODE ? (children) : (<App>{children}</App>)}
             </UserInfoProvider>
           </SessionProvider>
         </Providers>
