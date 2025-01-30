@@ -1,7 +1,7 @@
 // components/LogoutButton.js
 import React from 'react';
 import { useSession } from '../context/SessionContext';
-import { logoutUser } from '../services/auth';
+import { logoutUser } from '../services/authService';
 import { useRouter } from 'next/navigation';
 
 const LogoutButton = () => {

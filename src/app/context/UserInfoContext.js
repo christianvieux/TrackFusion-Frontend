@@ -1,7 +1,7 @@
 // src/app/context/UserInfoContext.js
 
 import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
-import { fetchPublicUserInfo } from '../services/user';
+import { fetchPublicUserInfo } from '../services/userService';
 import { useSession } from './SessionContext';
 
 const UserInfoContext = createContext({});

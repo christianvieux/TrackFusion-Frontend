@@ -12,7 +12,7 @@ import {
 import IsTrackPublic_Checkbox from "../components/isTrackPublic_Checkbox";
 import { uploadTrack } from "../services/trackService";
 import withAuth from "../hoc/withAuth.js";
-import { fetchTrackAttributes } from "../services/enum.js";
+import { fetchTrackAttributes } from "../services/enumService.js";
 import ImageIcon from "../components/Icons/ImageIcon.js";
 import { XCircle } from "lucide-react";
 

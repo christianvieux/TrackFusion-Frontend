@@ -6,7 +6,7 @@ import {
 } from "@nextui-org/react";
 import ImageIcon from "./Icons/ImageIcon.js";
 import withAuth from "../hoc/withAuth.js";
-import { updateProfilePicture } from "../services/auth.js"
+import { updateProfilePicture } from "../services/authService.js"
 import Avatar from "./Avatar.js"
 import imageCompression from 'browser-image-compression';
 

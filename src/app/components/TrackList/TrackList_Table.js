@@ -21,7 +21,7 @@ import Track_Options_Dropdown from "../Track_Options_Dropdown";
 import { TrackProvider } from "../../context/TrackContext";
 import { useTrackManager } from "../../context/TrackManagerContext";
 import Pagination from "../pagination/component";
-import { fetchTrackAttributes } from "../../services/enum";
+import { fetchTrackAttributes } from "../../services/enumService";
 import { getColorForAttribute } from "../../../config/Colors";
 import { useDebounce } from "../../hooks/useDebounce";
 import { highlightMatches } from "../../utils/highlightMatches";

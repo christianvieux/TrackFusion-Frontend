@@ -14,7 +14,7 @@ import {
   User,
 } from "@nextui-org/react";
 import NextImage from "next/image";
-import { fetchPublicUserInfo, fetchUserPublicTracks, fetchUserPublicFavoriteTracks } from "../../services/user";
+import { fetchPublicUserInfo, fetchUserPublicTracks, fetchUserPublicFavoriteTracks } from "../../services/userService";
 import TrackList from "../../components/TrackList/TrackList_Table";
 import ShareProfileModal from "../../components/ShareProfile_Modal"
 import ShareModal from "../../components/Share_Modal"

@@ -12,7 +12,7 @@ import {
 import Track_Configuration_Window from "./Track_Configuration_Window";
 import { useRouter } from "next/navigation";
 import { updateTrack } from "../services/trackService";
-import { deleteOwnedTrack } from "../services/user";
+import { deleteOwnedTrack } from "../services/userService";
 import { useSession } from "../context/SessionContext";
 import { useTrackList } from "../context/TrackListContext";
 import { useTrackManager } from "../context/TrackManagerContext";

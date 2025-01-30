@@ -10,8 +10,8 @@ import {
 } from "@nextui-org/react";
 import Password_Input from "../components/Password_Input";
 import { useState, useEffect } from "react";
-import { register, checkEmail } from "../services/user";
-import { generateOtp, verifyOtp } from "../services/otp";
+import { register, checkEmail } from "../services/userService";
+import { generateOtp, verifyOtp } from "../services/otpService";
 import { useSession } from "../context/SessionContext";
 import { useRouter } from "next/navigation";
 import CustomInput from "../components/CustomInput";
