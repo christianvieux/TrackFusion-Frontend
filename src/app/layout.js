@@ -16,14 +16,43 @@ const css_routes = {
   "/myfavoritetracks": ["/css/myFavoriteTracks.css"],
 };
 
+const MAINTENANCE_MODE = true;
+
+
 export default function RootLayout({
   children, // will be a page or nested layout
 }) {
   const pathname = usePathname().toLowerCase();
+
+  // If in maintenance mode and not accessing the maintenance page, redirect to maintenance
+  if (MAINTENANCE_MODE && pathname !== "/maintenance") {
+    if (typeof window !== "undefined") {
+      window.location.href = "/maintenance";
+      return null;
+    }
+  }
+
   const matchedRoute = Object.keys(css_routes).find((route) =>
     pathname.startsWith(route)
   );
   const cssFiles = css_routes[matchedRoute] || ["/css/default.css"];
+
+
+  if (MAINTENANCE_MODE) {
+    return (
+      <html lang="en">
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          {cssFiles.map((route) => (
+          <link key={route} rel="stylesheet" href={route} />
+        ))}
+        </head>
+        <body className="h-screen bg-green-darkest">
+          {children}
+        </body>
+      </html>
+    );
+  }
 
   return (
     <html lang="en">
