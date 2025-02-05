@@ -16,7 +16,7 @@ const css_routes = {
   "/myfavoritetracks": ["/css/myFavoriteTracks.css"],
 };
 
-const MAINTENANCE_MODE = true;
+const REDIRECT_URL = "/moved";
 
 
 export default function RootLayout({
@@ -24,10 +24,10 @@ export default function RootLayout({
 }) {
   const pathname = usePathname().toLowerCase();
 
-  // If in maintenance mode and not accessing the maintenance page, redirect to maintenance
-  if (MAINTENANCE_MODE && pathname !== "/maintenance") {
+  // redirect users, if url is set.
+  if (REDIRECT_URL && pathname !== REDIRECT_URL) {
     if (typeof window !== "undefined") {
-      window.location.href = "/maintenance";
+      window.location.href = REDIRECT_URL;
       return null;
     }
   }
@@ -53,7 +53,7 @@ export default function RootLayout({
         <Providers>
           <SessionProvider>
             <UserInfoProvider>
-              {MAINTENANCE_MODE ? (children) : (<App>{children}</App>)}
+              {REDIRECT_URL ? (children) : (<App>{children}</App>)}
             </UserInfoProvider>
           </SessionProvider>
         </Providers>

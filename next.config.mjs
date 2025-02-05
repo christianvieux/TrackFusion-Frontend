@@ -1,11 +1,20 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Added to redirect to new deployment
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        destination: 'https://trackfusionweb.com/:path*',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {
         source: "/api/:path*",
-        // Use the backend URL defined in .env.local
-        destination: `${process.env.API_URL}/api/:path*`, // Backend API URL for server-side calls
+        destination: `${process.env.API_URL}/api/:path*`,
       },
     ];
   },
