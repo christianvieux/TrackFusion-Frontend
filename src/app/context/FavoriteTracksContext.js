@@ -1,7 +1,7 @@
 // src/context/FavoriteTracksContext.js
 
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { fetchFavoriteTracks } from '../services/user';
+import { fetchFavoriteTracks } from '../services/userService';
 import { useSession } from '../context/SessionContext';
 
 const FavoriteTracksContext = createContext({

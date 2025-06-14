@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { Button, Spacer } from "@nextui-org/react";
 import { useSession } from "../context/SessionContext";
-import { addFavoriteTrack, removeFavoriteTrack } from "../services/user";
-import { fetchFavoriteTracks } from "../services/user";
+import { addFavoriteTrack, removeFavoriteTrack } from "../services/userService";
+import { fetchFavoriteTracks } from "../services/userService";
 import { useFavoriteTracks } from "../context/FavoriteTracksContext";
 import { useTrackList } from "../context/TrackListContext.js";
 import PropTypes from "prop-types";

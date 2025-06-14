@@ -1,6 +1,6 @@
 //app/hooks/useAuthStatus.js
 import { useState, useEffect } from "react";
-import { getSessionStatus } from "../services/auth";
+import { getSessionStatus } from "../services/authService";
 import { usePathname } from 'next/navigation'
 
 export const useSessionStatus = () => {

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Input, Button } from "@nextui-org/react";
 import { EyeFilledIcon } from "../components/Icons/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../components/Icons/EyeSlashFilledIcon";
-import { updatePassword } from "../services/auth";
+import { updatePassword } from "../services/authService";
 
 export default function UpdatePasswordForm() {
   const [hidePassword, setHidePassword] = useState(true);

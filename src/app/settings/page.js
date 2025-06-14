@@ -10,9 +10,9 @@ import withAuth from "../hoc/withAuth";
 function Settings() {
     const { userInfo, setUserInfo } = useUserInfo();
 
-    const onProfilePictureSubmit = async (data) => {
+    const onProfilePictureSubmit = async (newUrl) => {
         setUserInfo((prev) => {
-          const updatedUrl = `${data?.url}?v=${new Date().getTime()}`;
+          const updatedUrl = `${newUrl}?v=${new Date().getTime()}`;
           return { ...prev, profile_picture_url: updatedUrl };
         });
       };

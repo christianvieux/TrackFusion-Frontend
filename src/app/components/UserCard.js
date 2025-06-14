@@ -8,7 +8,7 @@ import {
   User,
 } from "@nextui-org/react";
 import Link from 'next/link'
-import { fetchPublicUserInfo } from "../services/user";
+import { fetchPublicUserInfo } from "../services/userService";
 
 export default function UserCard({ userId }) {
   const [userInfo, setUserInfo] = useState({});

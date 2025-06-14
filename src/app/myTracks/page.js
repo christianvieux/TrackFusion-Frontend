@@ -4,7 +4,7 @@
 import "../../../public/css/myTracks.css";
 import React, { useEffect, useState } from "react";
 import { useSession } from "../context/SessionContext.js";
-import { fetchOwnedTracks } from "../services/user.js";
+import { fetchOwnedTracks } from "../services/userService.js";
 import withAuth from "../hoc/withAuth.js";
 import TrackList_Table from "../components/TrackList/TrackList_Table.js";
 

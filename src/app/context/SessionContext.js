@@ -1,7 +1,8 @@
 // src/app/context/SessionContext.js
+'use client';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useSessionStatus } from '../hooks/useSessionStatus';
-import { loginUser, logoutUser } from '../services/auth';
+import { loginUser, logoutUser } from '../services/authService';
 
 export const SessionContext = createContext(null);
 

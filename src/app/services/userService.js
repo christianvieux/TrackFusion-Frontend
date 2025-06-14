@@ -86,6 +86,8 @@ export const fetchOwnedTracks = async (userId) => {
       withCredentials: true,
     });
 
+    console.log(response.data);
+
     return response.data;
   } catch (error) {
     if (error.response && error.response.data && error.response.data.error) {

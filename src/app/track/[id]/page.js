@@ -18,7 +18,7 @@ import {
 } from "@nextui-org/react";
 // import { HeartIcon, PlayIcon, PauseIcon } from '../../components/Icons'; // You'll need to create these icons
 import { fetchTrack } from "../../services/trackService";
-import { fetchPublicUserInfo } from "../../services/user";
+import { fetchPublicUserInfo } from "../../services/userService";
 import NextImage from "next/image";
 import Favorite_Button from "../../components/favoriteButton";
 import Play_Button from "../../components/Icons/PlayIcon";

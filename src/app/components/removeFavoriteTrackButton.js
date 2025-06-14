@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { removeFavoriteTrack } from '../services/user'
+import { removeFavoriteTrack } from '../services/userService'
 
 const RemoveFavoriteTrackButton = ({ item: trackObject, onRemove}) => {
   const [isHovered, setIsHovered] = useState(false);

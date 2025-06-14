@@ -6,7 +6,7 @@
 import React, { useState } from "react";
 import { Button } from "@nextui-org/button";
 import { useRouter } from "next/navigation";
-import { forgotPassword } from "../services/auth";
+import { forgotPassword } from "../services/authService";
 import CustomInput from "../components/CustomInput";
 
 export default function ForgotPasswordPage() {

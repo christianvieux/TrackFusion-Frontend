@@ -4,7 +4,7 @@ import OptionsMenu from "../components/Track_Options_Menu";
 import Pagination from "../pagination/pagination";
 import { Input } from "@nextui-org/react";
 import { useSession } from "../context/SessionContext";
-import {deleteOwnedTrack} from "../services/user"
+import {deleteOwnedTrack} from "../services/userService"
 
 const SearchIcon = (props) => (
   <svg aria-hidden="true" fill="none" focusable="false" height="1em" role="presentation" viewBox="0 0 24 24" width="1em" {...props}>

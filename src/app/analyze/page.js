@@ -9,7 +9,7 @@ import {
   Progress,
   Chip,
 } from "@nextui-org/react";
-import { analyzeAudio } from "../services/audio";
+import { analyzeAudio } from "../services/audioService";
 import MusicNoteIcon from "../components/Icons/MusicNote";
 import MetronomeIcon from "../components/Icons/Metronome";
 
@@ -46,15 +46,11 @@ export default function SongAnalyzer() {
     setAnalysisProgress(0);
     
     try {
-      const formData = new FormData();
-      formData.append("trackFile", file);
-      formData.append("bpmRange", bpmRange); // Add this line
-
       const results = await analyzeAudio(
-        formData,
-        // Progress callbacks
+        file,
+        bpmRange,
         (uploadPct) => setUploadProgress(uploadPct),
-        (analysisPct) => setAnalysisProgress(analysisPct),
+        (analysisPct) => setAnalysisProgress(analysisPct)
       );
 
       setResults(results);
@@ -124,7 +120,7 @@ export default function SongAnalyzer() {
                   <Progress
                     value={uploadProgress}
                     color="secondary"
-                    label="Uploading..."
+                    label={uploadProgress === 100 ? "Waiting for server..." : "Sending to server..."}
                     className="max-w-md"
                   />
                 )}
@@ -132,7 +128,7 @@ export default function SongAnalyzer() {
                   <Progress
                     value={analysisProgress}
                     color="primary"
-                    label="Analyzing..."
+                    label={analysisProgress === 100 ? "analysis done!" : "Analyzing..."}
                     className="max-w-md"
                   />
                 )}

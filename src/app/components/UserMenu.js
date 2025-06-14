@@ -10,7 +10,7 @@ import {
 } from "@nextui-org/react";
 import Avatar from "./Avatar"
 import { useSession } from "../context/SessionContext";
-import { logoutUser } from "../services/auth";
+import { logoutUser } from "../services/authService";
 import { useRouter } from "next/navigation";
 import GearIcon from "./Icons/GearIcon";
 import UserMinusIcon from "./Icons/UserMinusIcon";
