@@ -1,16 +1,53 @@
-# TrackFusion Portfolio Project - Repository Notice
+# TrackFusion Frontend
 
-## Important Update
-This repository contains the original version of TrackFusion, which was initially deployed on Vercel. The project has been migrated to AWS with significant improvements and can now be accessed at [https://trackfusionweb.com](https://trackfusionweb.com).
+A modern music streaming interface built with Next.js, designed to provide an engaging user experience for music discovery and playback.
 
-## For Visitors and Recruiters
-If you've arrived at this repository through a job application or portfolio link, please note that the current, production version of TrackFusion is available at [https://trackfusionweb.com](https://trackfusionweb.com). The new version represents the most up-to-date implementation of the project and better reflects my current technical capabilities.
+## Quick Start
 
-## Repository Status
-This repository is now archived to preserve the project's development history. While it remains accessible for reference, all new development and improvements are maintained in the new repository associated with the AWS deployment.
+Set up your development environment in a few simple steps:
 
-## Contact Information
-For any questions about the project or to discuss professional opportunities, please feel free to reach out through the contact information provided in my job application or portfolio.
+```bash
+# Get the code
+git clone https://github.com/christianvieux/TrackFusion-Frontend.git
+cd trackfusion-frontend
 
----
-*Last Updated: February 2024*
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
+
+# Start development
+npm run dev
+```
+
+Visit [http://localhost:3001](http://localhost:3001) to see your application.
+
+## Environment Configuration
+
+The included `.env.example` file contains the necessary configuration for local development:
+
+```plaintext
+# API and URL Configuration
+API_URL=YourAPIURL # Example: http://localhost:3000
+NEXT_PUBLIC_FRONTEND_URL=YourFrontendURL # Example: http://localhost:3001
+
+# Supported File Types
+NEXT_PUBLIC_ALLOWED_AUDIO_TYPES=audio/mp3,audio/wav,audio/wave,audio/mpeg,audio/ogg,audio/x-wav,audio/x-m4a,audio/aac
+NEXT_PUBLIC_ALLOWED_IMAGE_TYPES=image/jpeg,image/jpg,image/png,image/heic,image/heif
+```
+
+## Development Notes
+
+The frontend connects to the TrackFusion backend API for data management. For the best development experience, ensure your backend server is running at the URL specified in your environment variables.
+
+## Next Steps
+
+As development continues, planned improvements include enhanced music playback controls, user playlist management, and social sharing features.
+
+## Questions?
+
+Reach out through:
+- Email: christianvieux.dev@gmail.com
+- LinkedIn: https://www.linkedin.com/in/christian-vieux-dev/
+- GitHub: https://github.com/christianvieux
