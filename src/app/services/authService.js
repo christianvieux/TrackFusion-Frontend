@@ -88,7 +88,7 @@ export const verifyResetToken = async (token) => {
 
 export const updatePassword = async (currentPassword, newPassword) => {
   try {
-    const response = await axios.put('/api/auth/update-password', { currentPassword, newPassword }, { withCredentials: true });
+    const response = await axios.put('/api/auth/password', { currentPassword, newPassword }, { withCredentials: true });
 
     return response.data;
   } catch (error) {

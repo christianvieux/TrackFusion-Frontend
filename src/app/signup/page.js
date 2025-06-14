@@ -298,7 +298,19 @@ export default function SignUp() {
   }, [step]);
 
   return (
-    <div className="flex size-full items-center justify-center">
+    <div className="flex flex-col size-full items-center justify-center">
+      {/* Warning Banner */}
+      <div className="bg-black rounded-md mb-3 mx-auto z-50 text-warning">
+        <div className=" bg-yellow-500/90 rounded-lg px-6 py-3 shadow-lg">
+          <p className="font-semibold text-center">🚧 Under Maintenance 🚧</p>
+          <p className="text-sm">
+            Registration system is temporarily unavailable while I implement
+            improvements :(
+          </p>
+        </div>
+      </div>
+
+      {/* Sign up form */}
       <div className="flex w-80 flex-col items-center justify-center rounded-xl border-2 border-green/30 bg-black p-4 text-green shadow-small">
         <form
           onSubmit={
@@ -344,6 +356,7 @@ export default function SignUp() {
                 onChange={handleChange}
                 isInvalid={errors.email}
                 errorMessage={errors.email}
+                isDisabled={true}
               />
             </>
           )}
@@ -457,7 +470,7 @@ export default function SignUp() {
                   color="primary"
                   type="submit"
                   isLoading={loading == stepLabel}
-                  isDisabled={isButtonDisabled || loading}
+                  isDisabled={isButtonDisabled || loading || true}
                 >
                   {loading
                     ? "Please wait"
@@ -476,5 +489,6 @@ export default function SignUp() {
       </div>
     </div>
   );
+
   // return (<Login />);
 }
