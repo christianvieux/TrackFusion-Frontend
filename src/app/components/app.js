@@ -11,6 +11,7 @@ import NavBar from './nav-bar'
 import Sidebar from './Sidebar'
 
 import AudioPlayer from './AudioPlayer/AudioPlayer'
+import VideoBackground from './VideoBackground'
 
 import { FavoriteTracksProvider } from '../context/FavoriteTracksContext'
 import { PlaybackProvider } from '../context/PlaybackContext'
@@ -76,14 +77,15 @@ export default function App({ children }) {
         <>
             <Head>
                 <link rel="stylesheet" href="/css/shooting_stars.css" />
-                <link rel="stylesheet" href="/css/home.css" />
             </Head>
 
             <AppProviders>
                 <div
                     id="App"
-                    className="flex h-screen min-h-0 flex-col bg-background text-foreground"
+                    className="relative isolate flex h-screen min-h-0 flex-col overflow-hidden text-foreground"
                 >
+                    <VideoBackground />
+
                     <Toaster position="bottom-center" />
 
                     <Sidebar className="fixed top-0 left-0 z-40 hidden h-full !w-64 sm:flex" />
@@ -97,7 +99,7 @@ export default function App({ children }) {
                         >
                             <section
                                 id="content"
-                                className="flex min-h-0 min-w-72 flex-1 flex-col items-center overflow-auto p-4"
+                                className="flex *:max-w-full min-h-0 min-w-72 flex-1 flex-col items-center overflow-auto p-4"
                             >
                                 {children}
                             </section>

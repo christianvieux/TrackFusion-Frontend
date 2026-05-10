@@ -1,5 +1,5 @@
 import React from "react";
-import { Mail, Phone } from "lucide-react";
+import { Mail } from "lucide-react";
 import GithubIcon from "../components/Icons/GitHubIcon" 
 import LinkedinIcon from "../components/Icons/LinkedInIcon";
 
@@ -15,11 +15,6 @@ const contactLinks = [
     icon: Mail,
     href: "mailto:christianvieux.dev@gmail.com",
     label: "christianvieux.dev@gmail.com",
-  },
-  {
-    icon: Phone,
-    href: "tel:+19292445140",
-    label: "(929) 244-5140",
   },
   {
     icon: LinkedinIcon,

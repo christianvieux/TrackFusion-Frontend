@@ -32,7 +32,7 @@ export default function PrivacyPage() {
     <StaticPageShell title="Privacy Policy">
       <div className="space-y-6 text-lg">
         <p>
-          TrackFusion is committed to demonstrating good privacy practices as
+          TrackFusionWeb is committed to demonstrating good privacy practices as
           part of this portfolio project. This policy outlines how user data
           would be handled in a production environment.
         </p>

@@ -26,7 +26,7 @@ const platformFeatures = [
 
 export default function AboutPage() {
     return (
-        <StaticPageShell title="About TrackFusion">
+        <StaticPageShell title="About TrackFusionWeb">
             <div className="mb-8 space-y-5 text-sm leading-6 sm:text-base">
                 <p>
                     TrackFusion is a music streaming portfolio project I built

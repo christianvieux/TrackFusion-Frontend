@@ -1,193 +1,233 @@
 "use client";
 
-import Link from "next/link";
+import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import EmblaCarousel from "../carousel/EmblaCarousel.jsx";
 
 /* -------------------- */
-/* CONFIG */
+/* CONFIG               */
 /* -------------------- */
 
-const carouselOptions = { loop: true, duration: 30 };
-const carouselSettings = { autoPlay: true };
-
-const buttonClass =
-  "rounded-lg border border-accent bg-transparent px-5 py-2 font-semibold text-primary transition hover:bg-accent hover:text-accent-foreground";
-
-const cardClass =
-  "rounded-2xl bg-secondary p-8 shadow-card transition hover:scale-[1.02] hover:bg-secondary-hover";
+const carouselOptions  = { loop: true, duration: 30 };
+const carouselSettings = { autoPlay: false };
 
 /* -------------------- */
-/* DATA */
+/* DATA                 */
 /* -------------------- */
 
 const features = [
-  {
-    title: "Audio Upload System",
-    description:
-      "Upload and manage your audio files with support for WAV, MP3, and other formats.",
-    icon: "🎵",
-  },
-  {
-    title: "Smart Search",
-    description:
-      "Find tracks using filters like genre, mood, and more.",
-    icon: "🔍",
-  },
-  {
-    title: "Content Management",
-    description:
-      "Organize audio with tags, collections, and playlists.",
-    icon: "📂",
-  },
-  {
-    title: "Community Features",
-    description:
-      "Connect, share, and collaborate with other creators.",
-    icon: "👥",
-  },
+  { title: "Audio Upload",  description: "WAV, MP3 and more",            icon: "🎵" },
+  { title: "Smart Search",  description: "Filter by genre and mood",      icon: "🔍" },
+  { title: "Content Mgmt",  description: "Tags, collections, playlists",  icon: "📂" },
+  { title: "Community",     description: "Share and collaborate",          icon: "👥" },
 ];
 
 const steps = [
-  {
-    title: "Create Account",
-    description: "Sign up and get started instantly.",
-    image: "/illustrations/Signup.png",
-  },
-  {
-    title: "Upload",
-    description: "Upload your audio files.",
-    image: "/illustrations/Upload-cuate.png",
-  },
-  {
-    title: "Browse & Listen",
-    description: "Explore tracks from others.",
-    image: "/illustrations/Listen.png",
-  },
-  {
-    title: "Save & Share",
-    description: "Save and share your favorites.",
-    image: "/illustrations/Share.png",
-  },
+  { title: "Create Account",  description: "Sign up and get started instantly.", image: "/illustrations/Signup.png"       },
+  { title: "Upload",          description: "Upload your audio files.",           image: "/illustrations/Upload-cuate.png" },
+  { title: "Browse & Listen", description: "Explore tracks from others.",        image: "/illustrations/Listen.png"       },
+  { title: "Save & Share",    description: "Save and share your favorites.",     image: "/illustrations/Share.png"        },
 ];
 
 /* -------------------- */
-/* SLIDES */
+/* SHARED PRIMITIVES    */
+/* -------------------- */
+
+/** Frosted backdrop so slides are readable over the shooting stars */
+function SlideBackdrop({ children }) {
+  return (
+    <div id="slide_backdrop" className="h-full w-full bg-background/60 rounded-xl backdrop-blur-sm backdrop-saturate-150">
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Centered column layout for feature + steps slides.
+ * px-4 on mobile is enough — the mobile sidebar is a drawer overlay,
+ * it doesn't push the page content. The hamburger button lives inside
+ * the navbar, not floating over the page, so no extra left padding needed.
+ */
+function SlideLayout({ children, className = "" }) {
+  return (
+    <section
+    id="slide_layout"
+      className={`gap-6 px-4 py-6 max-h-full ${className}`}
+    >
+      {children}
+    </section>
+  );
+}
+
+function SlideHeading({ className = "", children }) {
+  return (
+    <h2 id="slide_heading" className={`text-2xl mb-10 w-max mx-auto font-semibold text-primary sm:text-3xl md:text-4xl ${className}`}>
+      {children}
+    </h2>
+  );
+}
+
+function SlideCard({ children, className = "" }) {
+  return (
+    <div
+      className={`rounded-2xl bg-secondary/80 shadow-card transition hover:bg-secondary-hover ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* -------------------- */
+/* SLIDES               */
+/* -------------------- */
+
+function HeroSlide() {
+  const btnBase      = "border-accent hover:bg-primary-hover/40 text-primary rounded-lg border px-4 py-2 text-sm font-semibold transition";
+  const btnPrimary   = `${btnBase} bg-transparent`;
+  const btnSecondary = `${btnBase} bg-transparent`;
+
+  return (
+    <SlideBackdrop>
+      <section className="flex h-full w-full items-center gap-8 px-4 py-8 sm:px-10 sm:py-10 md:px-16">
+        <div className="space-y-6 gap-4 min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-widest text-accent">
+            Your audio platform
+          </p>
+
+          <h1 className="text-2xl font-semibold leading-tight text-primary sm:text-3xl md:text-4xl lg:text-5xl">
+            Discover and Share Your Soundtrack
+          </h1>
+
+          <p className="text-sm text-accent sm:text-base">Upload · Explore · Enjoy</p>
+
+          <p className="text-sm text-muted-foreground sm:text-base">
+            TrackFusion is your creative audio hub. Share music, vocals,
+            sound effects, and more.
+          </p>
+
+          <div className="flex flex-wrap gap-3 pt-1">
+            <Link href="/signup" className={btnPrimary}>Get Started</Link>
+            <Link href="/feed"   className={btnSecondary}>Explore Tracks</Link>
+          </div>
+        </div>
+
+        {/* Decorative panel — large screens only */}
+        <div className="hidden shrink-0 lg:flex">
+          <SlideCard className="flex size-44 items-center justify-center ring-1 ring-accent/20 xl:size-52">
+            <span className="text-7xl xl:text-8xl">🎵</span>
+          </SlideCard>
+        </div>
+      </section>
+    </SlideBackdrop>
+  );
+}
+
+function FeaturesSlide() {
+  return (
+    <SlideBackdrop>
+      <SlideLayout>
+        <SlideHeading className="mb-20">Features</SlideHeading>
+
+        <div className="mx-auto grid w-full max-w-5xl grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 md:gap-5 lg:gap-6">
+          {features.map(({ title, description, icon }) => (
+            <SlideCard
+              key={title}
+              className="flex flex-col items-center gap-2 p-4 text-center hover:scale-[1.02] sm:gap-3 sm:p-5 md:gap-4 md:p-6 lg:p-8"
+            >
+              <span className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl">{icon}</span>
+
+              <h3 className="text-xs font-semibold text-accent sm:text-sm md:text-base lg:text-lg">
+                {title}
+              </h3>
+
+              <p className="text-[11px] text-muted-foreground sm:text-xs md:text-sm lg:text-base">
+                {description}
+              </p>
+            </SlideCard>
+          ))}
+        </div>
+      </SlideLayout>
+    </SlideBackdrop>
+  );
+}
+
+function HowItWorksSlide() {
+  return (
+    <SlideBackdrop>
+      <SlideLayout  className="h-500 space-y-2">
+        <SlideHeading>How It Works</SlideHeading>
+          {steps.map(({ title, description, image }, index) => (
+            <React.Fragment key={title}>
+              <SlideCard id={`step-${index}`} className="flex w-100 mx-auto items-center gap-3">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary sm:size-9">
+                  <span className="text-xs font-bold text-background sm:text-sm">{index + 1}</span>
+                </div>
+                <Image
+                  src={image}
+                  alt={title}
+                  width={48}
+                  height={48}
+                  className="hidden shrink-0 object-contain sm:block"
+                />
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-accent sm:text-base">{title}</h3>
+                  <p className="text-xs text-muted-foreground sm:text-sm">{description}</p>
+                </div>
+              </SlideCard>
+              {index < steps.length - 1 && (
+                <div className="ml-6 h-3 w-0.5 bg-accent/20 sm:ml-7" />
+              )}
+            </React.Fragment>
+          ))}
+      </SlideLayout>
+    </SlideBackdrop>
+  );
+}
+
+/* -------------------- */
+/* PAGE                 */
 /* -------------------- */
 
 const slides = [
-  <section key="hero" className="z-50 flex flex-col gap-5 p-4">
-    <h1 className="max-w-4xl pb-5 text-5xl font-semibold text-primary">
-      Discover and Share Your Soundtrack
-    </h1>
-
-    <h2 className="pb-5 text-3xl text-foreground">
-      <span className="text-accent">Upload</span>,{" "}
-      <span className="text-accent">Explore</span>,{" "}
-      <span className="text-accent">Enjoy</span>
-    </h2>
-
-    <p className="max-w-2xl pb-5 text-lg text-muted-foreground">
-      TrackFusion is your creative audio hub. Share music, vocals,
-      sound effects, and more.
-    </p>
-
-    <div className="flex flex-wrap gap-5">
-      <Link href="/signup" className={buttonClass}>
-        Get Started
-      </Link>
-
-      <Link href="/feed" className={buttonClass}>
-        Explore Tracks
-      </Link>
-    </div>
-  </section>,
-
-  <section key="features" className="z-50 text-center">
-    <h2 className="mb-20 text-4xl font-semibold text-primary">
-      Features
-    </h2>
-
-    <div className="mx-auto grid max-w-7xl gap-12 md:grid-cols-2">
-      {features.map(({ title, description, icon }) => (
-        <article key={title} className={`flex items-start ${cardClass}`}>
-          <span className="mr-6 text-5xl">{icon}</span>
-
-          <div className="text-left">
-            <h3 className="mb-3 text-2xl font-semibold text-accent">
-              {title}
-            </h3>
-
-            <p className="text-muted-foreground">
-              {description}
-            </p>
-          </div>
-        </article>
-      ))}
-    </div>
-  </section>,
-
-  <section key="how-it-works" className="z-50 text-center">
-    <h2 className="mb-16 text-4xl font-semibold text-primary">
-      How It Works
-    </h2>
-
-    <div className="flex flex-wrap justify-center gap-10">
-      {steps.map(({ title, description, image }, index) => (
-        <article
-          key={title}
-          className="relative flex w-64 flex-col items-center rounded-2xl bg-secondary p-6 shadow-card transition hover:bg-secondary-hover"
-        >
-          <div className="absolute -top-7 flex size-14 items-center justify-center rounded-full bg-primary shadow-lg">
-            <span className="text-3xl font-bold text-background">
-              {index + 1}
-            </span>
-          </div>
-
-          <Image
-            src={image}
-            alt={title}
-            width={180}
-            height={180}
-            className="mb-4 mt-4 object-contain"
-          />
-
-          <h3 className="mb-3 text-2xl font-semibold text-accent">
-            {title}
-          </h3>
-
-          <p className="text-sm text-muted-foreground">
-            {description}
-          </p>
-        </article>
-      ))}
-    </div>
-  </section>,
+  <HeroSlide       key="hero"         />,
+  <FeaturesSlide   key="features"     />,
+  <HowItWorksSlide key="how-it-works" />,
 ];
-
-/* -------------------- */
-/* PAGE */
-/* -------------------- */
 
 export default function Home() {
   return (
-    <main className="relative overflow-x-hidden text-foreground">
-      <EmblaCarousel
-        slides={slides}
-        options={carouselOptions}
-        custom_settings={carouselSettings}
-        className="!z-20 overflow-auto"
-      />
-
-      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+    <main
+      id="home"
+      className="relative overflow-hidden text-foreground"
+      style={{
+        // 100dvh = actual visible viewport (respects mobile browser chrome)
+        // Subtract your navbar + footer heights. Set these vars in global CSS:
+        //   --navbar-height: 56px;
+        //   --footer-height: 48px;
+        height: "calc(100dvh - var(--navbar-height, 56px) - var(--footer-height, 48px))",
+      }}
+    >
+      {/* Shooting stars */}
+      <div id="shooting-stars" className="flex justify-center pointer-events-none absolute inset-0 z-0 overflow-hidden">
         <div
-          className="night absolute inset-x-0 -top-[450px] sm:-top-[300px] md:-top-[500px] lg:-top-[100px]"
+          className="night "
           style={{ minHeight: "100%" }}
         >
           {Array.from({ length: 20 }).map((_, i) => (
             <div key={i} className="shooting_star" />
           ))}
         </div>
+      </div>
+
+      {/* Carousel fills the full height of <main> */}
+      <div className="relative z-10 h-full">
+        <EmblaCarousel
+          slides={slides}
+          options={carouselOptions}
+          custom_settings={carouselSettings}
+          className="h-full"
+        />
       </div>
     </main>
   );

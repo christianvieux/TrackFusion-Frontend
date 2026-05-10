@@ -88,7 +88,7 @@ export default function SongAnalyzerPage() {
     }
 
     return (
-        <main className="mx-auto min-h-screen max-w-5xl bg-background p-4 text-foreground">
+        <main className="mx-auto max-w-5xl p-4 text-foreground">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
                 <section className="w-full max-w-xl space-y-6 rounded-lg border-2 border-accent bg-secondary p-6 shadow-card">
                     <BpmRangeSelector
