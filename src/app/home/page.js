@@ -155,34 +155,45 @@ function FeaturesSlide() {
 function HowItWorksSlide() {
   return (
     <SlideBackdrop>
-      <SlideLayout  className="h-500 space-y-2">
-        <SlideHeading>How It Works</SlideHeading>
+      <SlideLayout className="flex h-full min-h-0 flex-col gap-3">
+        <SlideHeading className="shrink-0">How It Works</SlideHeading>
+
+        <div className="flex min-h-0 flex-1 flex-col gap-2 sm:gap-3 md:gap-4">
           {steps.map(({ title, description, image }, index) => (
-            <React.Fragment key={title}>
-              <SlideCard id={`step-${index}`} className="flex w-100 mx-auto items-center gap-3">
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary sm:size-9">
-                  <span className="text-xs font-bold text-background sm:text-sm">{index + 1}</span>
-                </div>
-                <Image
-                  src={image}
-                  alt={title}
-                  width={48}
-                  height={48}
-                  className="hidden shrink-0 object-contain sm:block"
-                />
-                <div className="min-w-0">
-                  <h3 className="text-sm font-semibold text-accent sm:text-base">{title}</h3>
-                  <p className="text-xs text-muted-foreground sm:text-sm">{description}</p>
-                </div>
-              </SlideCard>
-              {index < steps.length - 1 && (
-                <div className="ml-6 h-3 w-0.5 bg-accent/20 sm:ml-7" />
-              )}
-            </React.Fragment>
+            <SlideCard
+              key={title}
+              id={`step-${index}`}
+              className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 items-center gap-3 px-4 py-3 sm:gap-4 sm:px-5 md:gap-5 md:px-6"
+            >
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary sm:size-9 md:size-10">
+                <span className="text-xs font-bold text-background sm:text-sm md:text-base">
+                  {index + 1}
+                </span>
+              </div>
+
+              <Image
+                src={image}
+                alt={title}
+                width={56}
+                height={56}
+                className="hidden size-12 shrink-0 object-contain sm:block md:size-14"
+              />
+
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm font-semibold text-accent sm:text-base md:text-lg">
+                  {title}
+                </h3>
+
+                <p className="text-xs text-muted-foreground sm:text-sm md:text-base">
+                  {description}
+                </p>
+              </div>
+            </SlideCard>
           ))}
+        </div>
       </SlideLayout>
     </SlideBackdrop>
-  );
+  )
 }
 
 /* -------------------- */

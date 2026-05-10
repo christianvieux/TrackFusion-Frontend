@@ -8,7 +8,7 @@ export default function VideoBackground() {
                 loop
                 playsInline
             >
-                <source src="/videos/Background.mp4" type="video/mp4" />
+                <source src="https://christianvieux-trackfusionweb-storage-bucket.s3.us-east-1.amazonaws.com/videos/Background.mp4" type="video/mp4" />
             </video>
 
             <div className="fixed inset-0 -z-10 bg-secondary/60" />
