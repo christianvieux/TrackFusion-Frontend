@@ -139,7 +139,9 @@ function UploadPage() {
         formData.append('trackFile', trackFile)
         formData.append('name', trackName.trim())
         formData.append('description', trackDescription)
-        formData.append('is_private', String(!isPublic))
+        console.log("isPublic:", isPublic);
+        console.log("is_private sent:", !isPublic);
+        formData.append("is_private", !isPublic);
 
         // Only append metadata fields that have actual values
         Object.keys(trackMetadata).forEach((key) => {

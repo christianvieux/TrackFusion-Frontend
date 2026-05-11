@@ -10,9 +10,9 @@ export default function IsTrackPublicCheckbox({
     <Checkbox
       id="track-public"
       name="is_public"
-      checked={isPublic}
-      disabled={isDisabled}
-      onCheckedChange={(checked) => setIsPublic(checked === true)}
+      isSelected={isPublic}
+      isDisabled={isDisabled}
+      onChange={setIsPublic}
       className="items-start text-foreground"
     >
       <Checkbox.Control>
