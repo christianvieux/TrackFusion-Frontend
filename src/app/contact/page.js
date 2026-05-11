@@ -64,7 +64,7 @@ export default function ContactPage() {
 
         <StaticPageCard title="About This Project" className="p-8">
           <p>
-            TrackFusion is part of my web development portfolio, demonstrating
+            TrackFusionWeb is part of my web development portfolio, demonstrating
             expertise in:
           </p>
 

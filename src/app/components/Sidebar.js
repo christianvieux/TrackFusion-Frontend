@@ -101,7 +101,7 @@ export default function Sidebar({ className = "", classNames = {}, ...props }) {
       </section>
 
       {/* Queue — grows to fill remaining space, recessed card style (Option A) */}
-      <section className="mx-3 mb-4 hidden flex-1 flex-col gap-3 overflow-hidden rounded-xl bg-secondary p-3 md:flex">
+      <section className="mx-3 mb-4 hidden max-h-full flex-col gap-3 overflow-hidden rounded-xl h-max p-3 md:flex">
         <SectionLabel>Track Queue</SectionLabel>
         <div className="min-h-0 flex-1 overflow-hidden">
           <TrackListQueue className="h-full" />

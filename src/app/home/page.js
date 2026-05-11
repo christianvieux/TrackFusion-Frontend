@@ -102,7 +102,7 @@ function HeroSlide() {
           <p className="text-sm text-accent sm:text-base">Upload · Explore · Enjoy</p>
 
           <p className="text-sm text-muted-foreground sm:text-base">
-            TrackFusion is your creative audio hub. Share music, vocals,
+            TrackFusionWeb is your creative audio hub. Share music, vocals,
             sound effects, and more.
           </p>
 
