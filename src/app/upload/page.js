@@ -276,13 +276,14 @@ function UploadPage() {
 
                         return (
                             <TrackMetadataSelect
-                                key={attributeKey}
-                                name={attributeKey}
-                                options={attribute.values}
-                                allowMultiple={attribute.allowMultiple}
-                                isDisabled={isUploading}
-                                setTrackMetadata={setTrackMetadata}
-                            />
+  key={attributeKey}
+  name={attributeKey}
+  options={attribute.values}
+  allowMultiple={attribute.allowMultiple}
+  isRequired={["category", "genre", "mood"].includes(attributeKey)}
+  isDisabled={isUploading}
+  setTrackMetadata={setTrackMetadata}
+/>
                         )
                     })}
 

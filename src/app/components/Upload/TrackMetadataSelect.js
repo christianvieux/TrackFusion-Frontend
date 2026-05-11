@@ -7,21 +7,18 @@ export default function TrackMetadataSelect({
   name,
   options = [],
   allowMultiple = false,
+  isRequired = false,
   isDisabled,
   setTrackMetadata,
 }) {
   function handleSelectionChange(value) {
-  const selectedValues = Array.isArray(value)
-    ? value
-    : value
-      ? [value]
-      : [];
+    const selectedValues = Array.isArray(value) ? value : value ? [value] : [];
 
-  setTrackMetadata((currentMetadata) => ({
-    ...currentMetadata,
-    [name]: allowMultiple ? selectedValues : selectedValues[0] || "",
-  }));
-}
+    setTrackMetadata((currentMetadata) => ({
+      ...currentMetadata,
+      [name]: allowMultiple ? selectedValues : selectedValues[0] || "",
+    }));
+  }
 
   return (
     <Select
@@ -29,12 +26,12 @@ export default function TrackMetadataSelect({
       className="max-w-full"
       placeholder={`Select ${allowMultiple ? "one or more" : "a"} ${name}`}
       selectionMode={allowMultiple ? "multiple" : "single"}
+      isRequired={isRequired}
       isDisabled={isDisabled}
       onChange={handleSelectionChange}
     >
       <Label>
         Track {formatLabel(name)}
-        {name === "category" && <span className="text-danger"> *</span>}
       </Label>
 
       <Select.Trigger>
