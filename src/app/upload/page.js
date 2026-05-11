@@ -106,8 +106,7 @@ function UploadPage() {
 
         if (!allowedTypes.includes(file.type)) {
             setError(
-                `Please upload a valid ${
-                    isTrackFile ? 'audio' : 'image'
+                `Please upload a valid ${isTrackFile ? 'audio' : 'image'
                 } file: ${getFileExtensions(allowedTypes)}`
             )
 
@@ -142,13 +141,15 @@ function UploadPage() {
         formData.append('description', trackDescription)
         formData.append('is_private', !isPublic)
 
+        // Only append metadata fields that have actual values
         Object.keys(trackMetadata).forEach((key) => {
-            const value = trackMetadata[key]
-            // Only append if value is not empty string or empty array
-            if (value !== '' && !(Array.isArray(value) && value.length === 0)) {
-                formData.append(key, value)
-            }
-        })
+            const value = trackMetadata[key];
+
+            if (value === "" || value === null || value === undefined) return;
+            if (Array.isArray(value) && value.length === 0) return;
+
+            formData.append(key, Array.isArray(value) ? value.join(",") : value);
+        });
 
         if (imageFile) {
             formData.append('imageFile', imageFile)
@@ -244,29 +245,29 @@ function UploadPage() {
 
                 <div className="space-y-4">
                     <Input
-  name="trackName"
-  className="w-full"
-  placeholder="Track name"
-  value={trackName}
-  onChange={(event) => handleTrackNameChange(event.target.value)}
-  disabled={isUploading}
-  aria-invalid={Boolean(trackNameError)}
-/>
+                        name="trackName"
+                        className="w-full"
+                        placeholder="Track name"
+                        value={trackName}
+                        onChange={(event) => handleTrackNameChange(event.target.value)}
+                        disabled={isUploading}
+                        aria-invalid={Boolean(trackNameError)}
+                    />
 
-{trackNameError && (
-  <p className="text-xs text-danger">
-    {trackNameError}
-  </p>
-)}
+                    {trackNameError && (
+                        <p className="text-xs text-danger">
+                            {trackNameError}
+                        </p>
+                    )}
 
                     <TextArea
-  aria-label="Track description"
-  className="h-32 w-full"
-  placeholder="Add a short description optional"
-  value={trackDescription}
-  onChange={(event) => setTrackDescription(event.target.value)}
-  disabled={isUploading}
-/>
+                        aria-label="Track description"
+                        className="h-32 w-full"
+                        placeholder="Add a short description optional"
+                        value={trackDescription}
+                        onChange={(event) => setTrackDescription(event.target.value)}
+                        disabled={isUploading}
+                    />
 
                     {sortedAttributeKeys.map((attributeKey) => {
                         const attribute = trackAttributesList[attributeKey]
@@ -300,10 +301,10 @@ function UploadPage() {
 
                     <div className="pt-2">
                         <IsTrackPublicCheckbox
-  isPublic={isPublic}
-  setIsPublic={setIsPublic}
-  isDisabled={isUploading}
-/>
+                            isPublic={isPublic}
+                            setIsPublic={setIsPublic}
+                            isDisabled={isUploading}
+                        />
                     </div>
                 </div>
 

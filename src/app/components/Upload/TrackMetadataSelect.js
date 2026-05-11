@@ -10,23 +10,27 @@ export default function TrackMetadataSelect({
   isDisabled,
   setTrackMetadata,
 }) {
-  function handleSelectionChange(selectedKey) {
-    const selectedValues =
-      selectedKey instanceof Set ? Array.from(selectedKey) : [selectedKey];
+  function handleSelectionChange(value) {
+  const selectedValues = Array.isArray(value)
+    ? value
+    : value
+      ? [value]
+      : [];
 
-    setTrackMetadata((currentMetadata) => ({
-      ...currentMetadata,
-      [name]: selectedValues.join(","),
-    }));
-  }
+  setTrackMetadata((currentMetadata) => ({
+    ...currentMetadata,
+    [name]: allowMultiple ? selectedValues : selectedValues[0] || "",
+  }));
+}
 
   return (
     <Select
+      name={name}
       className="max-w-full"
       placeholder={`Select ${allowMultiple ? "one or more" : "a"} ${name}`}
       selectionMode={allowMultiple ? "multiple" : "single"}
       isDisabled={isDisabled}
-      onSelectionChange={handleSelectionChange}
+      onChange={handleSelectionChange}
     >
       <Label>
         Track {formatLabel(name)}
