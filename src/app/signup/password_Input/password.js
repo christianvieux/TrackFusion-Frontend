@@ -1,5 +1,5 @@
 import React from "react";
-import { Input } from "@nextui-org/react";
+import { Input } from "@heroui/react";
 import { EyeFilledIcon } from "./EyeFilledIcon";
 import { EyeSlashFilledIcon } from "./EyeSlashFilledIcon";
 

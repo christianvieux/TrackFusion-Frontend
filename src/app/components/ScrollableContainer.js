@@ -63,7 +63,7 @@ export default function ScrollableContainer({children, canScroll=true, className
 
     return (
         <div
-        className={`overflow-auto ${className}`}
+        className={`max-w-full max-h-full overflow-auto ${className}`}
             ref={scrollContainerRef}
             {...rest}
         >

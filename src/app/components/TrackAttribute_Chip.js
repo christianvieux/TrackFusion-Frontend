@@ -1,7 +1,7 @@
 // src/app/components/TrackAttribute_Chip.js
 
 import React from "react";
-import {Chip } from "@nextui-org/react";
+import {Chip } from "@heroui/react";
 import { getColorForAttribute } from "../../config/Colors"
 
 

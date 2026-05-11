@@ -1,13 +1,15 @@
 // services/auth.js
 import axios from 'axios';
-
+import getApiBaseUrl from '../utils/getApiBaseUrl';
+// API base URL
+const API_BASE_URL = getApiBaseUrl();
 
 axios.defaults.withCredentials = true;
 
 
 export const loginUser = async (email, password) => {
   try {
-    const response = await axios.post('/api/auth/login', { email, password }, { withCredentials: true });
+    const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, password }, { withCredentials: true });
     return response.data;
   } catch (error) {
     if (error.response && error.response.data && error.response.data.error) {
@@ -20,7 +22,7 @@ export const loginUser = async (email, password) => {
 
 export const logoutUser = async () => {
   try {
-    const response = await axios.post('/api/auth/logout', { withCredentials: true });
+    const response = await axios.post(`${API_BASE_URL}/auth/logout`, { withCredentials: true });
     return true;
   } catch (error) {
     if (error.response && error.response.data && error.response.data.error) {
@@ -33,7 +35,7 @@ export const logoutUser = async () => {
 
 export const getSessionStatus = async () => {
   try {
-    const response = await axios.get('/api/auth/session', { withCredentials: true });
+    const response = await axios.get(`${API_BASE_URL}/auth/session`, { withCredentials: true });
 
     return response.data;
   } catch (error) {
@@ -51,7 +53,7 @@ export const getSessionStatus = async () => {
 
 export const forgotPassword = async (email) => {
   try {
-    const response = await axios.post('/api/auth/forgot-password', { email }, { withCredentials: true });
+    const response = await axios.post(`${API_BASE_URL}/auth/forgot-password`, { email }, { withCredentials: true });
 
     return response.data;
   } catch (error) {
@@ -65,7 +67,7 @@ export const forgotPassword = async (email) => {
 
 export const resetPassword = async (token, password) => {
   try {
-    const response = await axios.post(`/api/auth/reset-password/${token}`, { password }, { withCredentials: true });
+    const response = await axios.post(`${API_BASE_URL}/auth/reset-password/${token}`, { password }, { withCredentials: true });
 
     return response.data;
   } catch (error) {
@@ -79,7 +81,7 @@ export const resetPassword = async (token, password) => {
 
 export const verifyResetToken = async (token) => {
   try {
-    const response = await axios.get(`/api/auth/verify-reset-token/${token}`);
+    const response = await axios.get(`${API_BASE_URL}/auth/verify-reset-token/${token}`);
     return response.data;
   } catch (error) {
     throw new Error(error.response.data.error || 'Failed to verify token.');
@@ -88,7 +90,7 @@ export const verifyResetToken = async (token) => {
 
 export const updatePassword = async (currentPassword, newPassword) => {
   try {
-    const response = await axios.put('/api/auth/password', { currentPassword, newPassword }, { withCredentials: true });
+    const response = await axios.put(`${API_BASE_URL}/auth/password`, { currentPassword, newPassword }, { withCredentials: true });
 
     return response.data;
   } catch (error) {
@@ -135,7 +137,7 @@ export const updateProfilePicture = async (file, onProgressChange = () => {}) =>
     };
 
     // 2. Get presigned URL
-    const { data: fileUrl } = await axios.post('/api/aws/presigned-url', {
+    const { data: fileUrl } = await axios.post(`${API_BASE_URL}/aws/presigned-url`, {
       fileName: fileInfo.fileName,
       contentType: fileInfo.contentType
     });
@@ -146,7 +148,7 @@ export const updateProfilePicture = async (file, onProgressChange = () => {}) =>
 
     // 4. Trigger processing
     onProgressChange?.(ProfileUploadStates.PROCESSING);
-    const { data: { jobId } } = await axios.post('/api/upload/profile-picture', {
+    const { data: { jobId } } = await axios.post(`${API_BASE_URL}/upload/profile-picture`, {
       imageUrl: fileUrl
     });
 
@@ -168,7 +170,7 @@ const checkProfilePictureProcessingStatus = async (jobId, onProgressChange) => {
   const delayMs = 1000;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const { data: status } = await axios.get(`/api/upload/profile-picture-status/${jobId}`);
+    const { data: status } = await axios.get(`${API_BASE_URL}/upload/profile-picture-status/${jobId}`);
 
     if (status.state === 'completed') {
       return status.result;

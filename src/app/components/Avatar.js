@@ -1,9 +1,20 @@
-// src/app/components/Avatar.js
-import React, { useState, useEffect } from "react";
-import { Button, Avatar } from "@nextui-org/react";
+"use client";
 
-export default function AvatarComponent({src, className, ...props}) {
+import { Avatar } from "@heroui/react";
+
+const FALLBACK_AVATAR = "/images/pfp-pic.jpg";
+
+export default function AvatarComponent({
+  src,
+  alt = "User avatar",
+  fallback = "U",
+  className = "",
+  ...props
+}) {
   return (
-    <Avatar src={src || "/default-avatar.png"} className={`${className}`} {...props} />
+    <Avatar className={className} {...props}>
+      <Avatar.Image alt={alt} src={src || FALLBACK_AVATAR} />
+      <Avatar.Fallback>{fallback}</Avatar.Fallback>
+    </Avatar>
   );
 }

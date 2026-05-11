@@ -1,358 +1,397 @@
-// TrackManagerContext.js
-import next from "next";
-import React, { useEffect, useRef, createContext, useState, useContext } from "react";
-import { useDeletedTracks } from "./deletedTracksContext";
-// Create the context
-const TrackManagerContext = createContext();
+'use client'
 
-// Create a provider component
-export const TrackManagerProvider = ({ children }) => {
-  const { deletedTracks } = useDeletedTracks();
-  const [initialPlaylist, setInitialPlaylist] = useState([]);
-  const [playlist, setPlaylist] = useState([]);
-  const [queue, setQueue] = useState([]);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [currentTrack, setCurrentTrack] = useState(null);
-  const [isShuffled, setIsShuffled] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isTrackReadyInPlayer, setIsTrackReadyInPlayer] = useState(false);
-  const audioRef = React.useRef(null);
+import React, { createContext, useContext, useEffect, useState } from 'react'
 
-  // Function to reset/initialize the manager
-  const resetManager = () => {
-    setInitialPlaylist([]);
-    setPlaylist([]);
-    setQueue([]);
-    setCurrentTrackIndex(0);
-    setCurrentTrack(null);
-    setIsShuffled(false);
-    setIsPlaying(false);
-    setIsTrackReadyInPlayer(false);
-  };
+import { useTrackEvents } from './TrackEventsContext'
 
-  const generateUniqueId = () => {
-    const existingIds = new Set([
-      ...playlist.map(item => item.uniqueId),
-      ...queue.map(item => item.uniqueId),
-    ]);
+const TrackManagerContext = createContext(undefined)
 
-    let newId;
-    do {
-      newId = Math.floor(Math.random() * 1000000); // Generates a number between 0 and 999999
-    } while (existingIds.has(newId));
+export function TrackManagerProvider({ children }) {
+    const { lastUpdatedTrack, lastDeletedTrackId } = useTrackEvents()
 
-    return newId;
-  };
+    const [initialPlaylist, setInitialPlaylist] = useState([])
+    const [playlist, setPlaylist] = useState([])
+    const [queue, setQueue] = useState([])
+    const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
+    const [currentTrack, setCurrentTrack] = useState(null)
+    const [isShuffled, setIsShuffled] = useState(false)
+    const [isPlaying, setIsPlaying] = useState(false)
+    const [isTrackReadyInPlayer, setIsTrackReadyInPlayer] = useState(false)
 
-  const assignUniqueIdsTo = (array) => {
-    return array.map((item) => {
-      const newItemWithId = { ...item, uniqueId: generateUniqueId() };
-      return newItemWithId;
-    });
-  }
+    const audioRef = React.useRef(null)
 
-  const initializePlaylist = (tracks) => {
-    const newPlaylistWithIds = assignUniqueIdsTo(tracks);
-    setInitialPlaylist(newPlaylistWithIds);
-
-    return newPlaylistWithIds;
-  };
-
-  const playNextTrack = () => {
-    const nextTrackInQueue = queue[0];
-
-    console.log("Playing next track", playlist)
-    if (nextTrackInQueue) {
-      removeTrackFromQueue(nextTrackInQueue.uniqueId);
-      setCurrentTrack(nextTrackInQueue);
-      
-      return nextTrackInQueue;
-    } else {
-      let nextTrack;
-      const nextTrackIndex = currentTrackIndex + 1;
-      
-      if (nextTrackIndex < playlist.length) {
-        nextTrack = playlist[nextTrackIndex];
-      } else {
-        nextTrack = playlist[0];
-      }
-
-      const newIndex = playlist.findIndex((t) => t.uniqueId === nextTrack.uniqueId);
-      setCurrentTrackIndex(newIndex);
-      setCurrentTrack(nextTrack);
-      setIsPlaying(true);        
-
-      return playlist[newIndex];
-    }
-  };
-
-  const playPreviousTrack = () => {
-    const threshold = 2; // If the track is more than 2 seconds in, restart the track
-    const currentPosition = audioRef.current.currentTime;
-    
-    if (currentPosition > threshold) {
-      // Restart the track
-      audioRef.current.currentTime = 0;
-      // console.log("Restarting track");
-
-      return currentTrack;
-    } else {
-      // Play the previous track
-      const newCurrentTrackIndex = currentTrackIndex === 0 ? playlist.length - 1 : currentTrackIndex - 1;
-      const newCurrentTrack = playlist[newCurrentTrackIndex];
-      
-      setCurrentTrackIndex(newCurrentTrackIndex);
-      setCurrentTrack(newCurrentTrack);
-
-      // console.log("Playing previous track");
-
-      setIsPlaying(true);
-      return newCurrentTrack;
-    }
-  };  
-
-  const shuffleArray = (array, startingItem) => {
-    const newArray = [...array];
-
-    if (startingItem) {
-      const startingIndex = newArray.findIndex((t) => t == startingItem);
-      newArray.splice(startingIndex, 1);
+    function generateUniqueId() {
+        return crypto.randomUUID()
     }
 
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    function assignUniqueIdsTo(tracks = []) {
+        return tracks.map((track) => ({
+            ...track,
+            trackId: track.trackId ?? track.id,
+            uniqueId: track.uniqueId || generateUniqueId(),
+        }))
     }
 
-    if (startingItem) {
-      newArray.unshift(startingItem);
+    function updateTrackCollection(currentTracks = [], updatedTrack) {
+        return currentTracks.map((track) =>
+            Number(track.id) === Number(updatedTrack.id)
+                ? { ...track, ...updatedTrack }
+                : track
+        )
     }
 
-    return newArray;
-  };
-
-  const shufflePlaylist = () => {
-    const newPlaylist = [...playlist];
-    const currentTrackIndex = newPlaylist.findIndex(
-      (t) => t.uniqueId === currentTrack.uniqueId
-    );
-    // Remove the current track from the playlist
-    newPlaylist.splice(currentTrackIndex, 1);
-
-    // Shuffle the remaining tracks
-    for (let i = newPlaylist.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newPlaylist[i], newPlaylist[j]] = [newPlaylist[j], newPlaylist[i]];
+    function removeTrackFromCollection(currentTracks = [], trackId) {
+        return currentTracks.filter(
+            (track) => Number(track.id) !== Number(trackId)
+        )
     }
 
-    // Add the current track to the beginning of the shuffled playlist
-    newPlaylist.unshift(currentTrack);
+    function initializePlaylist(tracks = []) {
+        const tracksWithIds = assignUniqueIdsTo(tracks)
+        setInitialPlaylist(tracksWithIds)
 
-    setPlaylist(newPlaylist);
-    setCurrentTrackIndex(0);
-    setCurrentTrack(newPlaylist[0]);
-  };
-
-  const resetPlaylist = () => {
-    const newCurrentTrackIndex = initialPlaylist.findIndex((t) => t.uniqueId === currentTrack.uniqueId)
-    setPlaylist(initialPlaylist);
-    setCurrentTrackIndex(newCurrentTrackIndex);
-  };
-
-  const isTrackInPlaylist = (track) => {
-    return playlist.some((t) => t.uniqueId === track.uniqueId);
-  };
-
-  const resumeTrack = () => {
-    setIsPlaying(true);
-  }
-  
-  const pauseTrack = () => {
-    setIsPlaying(false);
-  };
-
-  const startPlaylist = (playlist, startingTrack, canPlay=true) => {
-    const newInitialPlaylistWithIds = initializePlaylist(playlist);
-    let newPlaylist = newInitialPlaylistWithIds;
-    let startingTrackWithId = null;
-
-    if (startingTrack) {
-      startingTrackWithId = newInitialPlaylistWithIds.find((t) => t.id === startingTrack.id);
-      if (isShuffled) {
-        newPlaylist = shuffleArray(newPlaylist, startingTrackWithId);
-      }
-    } else if (isShuffled) {
-      newPlaylist = shuffleArray(newPlaylist);
+        return tracksWithIds
     }
 
-    const newCurrentTrackIndex = startingTrackWithId
-    ? newPlaylist.findIndex((t) => t.uniqueId === startingTrackWithId.uniqueId)
-    : 0; // Default to the first track if startingTrack is not provided
+    function shuffleArray(array = [], startingItem = null) {
+        const newArray = [...array]
 
-    // initializePlaylist(playlist);
-    setPlaylist(newPlaylist);
-    setCurrentTrackIndex(newCurrentTrackIndex);
-    setCurrentTrack(newPlaylist[newCurrentTrackIndex]);
-    if (canPlay) {
-      resumeTrack()
-    };
-  };
-  
-  const skipToTrack = (uniqueId) => {
-    // Check if the track is in the queue
-    const trackInQueueIndex = queue.findIndex((t) => t.uniqueId === uniqueId);
-    if (trackInQueueIndex !== -1) {
-      // Remove all tracks up to and including the target track in the queue
-      const newTrack = queue[trackInQueueIndex];
-      const newQueue = queue.slice(trackInQueueIndex + 1);
-      setQueue(newQueue);
-      setCurrentTrack(newTrack);
-      resumeTrack();
-      return newTrack;
+        if (startingItem) {
+            const startingIndex = newArray.findIndex(
+                (track) => track.uniqueId === startingItem.uniqueId
+            )
+
+            if (startingIndex !== -1) {
+                newArray.splice(startingIndex, 1)
+            }
+        }
+
+        for (let index = newArray.length - 1; index > 0; index -= 1) {
+            const randomIndex = Math.floor(Math.random() * (index + 1))
+            ;[newArray[index], newArray[randomIndex]] = [
+                newArray[randomIndex],
+                newArray[index],
+            ]
+        }
+
+        if (startingItem) {
+            newArray.unshift(startingItem)
+        }
+
+        return newArray
     }
 
-    // Check if the track is in the playlist
-    const trackInPlaylistIndex = playlist.findIndex((t) => t.uniqueId === uniqueId);
-    if (trackInPlaylistIndex !== -1) {
-      setCurrentTrackIndex(trackInPlaylistIndex);
-      setCurrentTrack(playlist[trackInPlaylistIndex]);
-      resumeTrack();
-      return playlist[trackInPlaylistIndex];
+    function resumeTrack() {
+        setIsPlaying(true)
     }
 
-    // If the track is not found in either the queue or the playlist
-    console.error(`Track with uniqueId ${uniqueId} not found in queue or playlist`);
-    return null;
-  };
-
-  // Helper function to add a track
-  const addTrack = (track, setCollection) => {
-    const newTrackWithUniqueId = { ...track, uniqueId: generateUniqueId() };
-    setCollection((prev) => [...prev, newTrackWithUniqueId]);
-
-    return newTrackWithUniqueId;
-  };
-
-  // Helper function to remove a track
-  const removeTrack = (uniqueId, setCollection) => {
-    setCollection((prev) => {
-      return prev.filter((track) => track.uniqueId !== uniqueId)
-    });
-  };
-
-  // Helper function to remove a track using the track's id
-  const removeTrackById = (trackId, setCollection) => {
-    setCollection((prev) => {
-      return prev.filter((track) => track.id !== trackId)
-    });
-  };
-
-  // Function to add a track to the playlist
-  const addTrackToPlaylist = (track) => {
-    return addTrack(track, setPlaylist);
-  };  
-
-  // Function to remove a track from the playlist
-  const removeTrackFromPlaylist = (uniqueId) => {
-    removeTrack(uniqueId, setPlaylist);
-  };
-
-  // Function to remove a track from the manager and stop playing it
-  const removeTrackFromManager = (trackId) => {
-    removeTrackById(trackId, setPlaylist);
-    removeTrackById(trackId, setQueue);
-
-    // Stop playing the track if it's the current track
-    if (currentTrack && currentTrack.id === trackId) {
-      setCurrentTrack(null);
-      setIsPlaying(false);
+    function pauseTrack() {
+        setIsPlaying(false)
     }
-  };
 
-  // Function to add a track to the queue
-  const addTrackToQueue = (track) => {
-    addTrack(track, setQueue);
-  };
+    function startPlaylist(tracks = [], startingTrack = null, canPlay = true) {
+        if (!tracks.length) return null
 
-  // Function to remove a track from the queue
-  const removeTrackFromQueue = (uniqueId) => {
-    removeTrack(uniqueId, setQueue);
-  };
+        const initialTracksWithIds = initializePlaylist(tracks)
 
-  // Context value
-  const contextValue = {
-    audioRef,
+        let nextPlaylist = initialTracksWithIds
+        let startingTrackWithId = null
 
-    skipToTrack,
-    resumeTrack,
-    pauseTrack,
+        if (startingTrack) {
+            startingTrackWithId = initialTracksWithIds.find(
+                (track) => Number(track.id) === Number(startingTrack.id)
+            )
+        }
 
-    isPlaying,
-    setIsPlaying,
-    
-    startPlaylist,
-    shufflePlaylist,
-    resetPlaylist,
-    
-    playNextTrack,
-    playPreviousTrack,
+        if (isShuffled) {
+            nextPlaylist = shuffleArray(nextPlaylist, startingTrackWithId)
+        }
 
-    initializePlaylist,
-    initialPlaylist,
+        const nextTrackIndex = startingTrackWithId
+            ? nextPlaylist.findIndex(
+                  (track) => track.uniqueId === startingTrackWithId.uniqueId
+              )
+            : 0
 
-    playlist,
-    setPlaylist,
+        const safeTrackIndex = nextTrackIndex === -1 ? 0 : nextTrackIndex
+        const nextTrack = nextPlaylist[safeTrackIndex]
 
-    queue,
-    setQueue,
+        setPlaylist(nextPlaylist)
+        setCurrentTrackIndex(safeTrackIndex)
+        setCurrentTrack(nextTrack)
 
-    currentTrackIndex,
-    setCurrentTrackIndex,
+        if (canPlay) {
+            resumeTrack()
+        }
 
-    currentTrack,
-    setCurrentTrack,
-
-    addTrackToPlaylist,
-    removeTrackFromPlaylist,
-    removeTrackFromManager,
-
-    addTrackToQueue,
-    removeTrackFromQueue,
-
-    isTrackReadyInPlayer, 
-    setIsTrackReadyInPlayer,
-  };
-
-  // start the playlis when item gets added to queue with no current track or playlist
-  useEffect(() => {
-    if (queue.length > 0 && !currentTrack && playlist.length === 0) {
-      playNextTrack();
+        return nextTrack
     }
-  }, [
-    queue,
-  ]);
 
-  // Remove track from manager when it's deleted
-  useEffect(() => {
-    deletedTracks.forEach((trackId) => {
-      removeTrackFromManager(trackId);
-    });
-  }, [deletedTracks]);
+    function playNextTrack() {
+        const nextTrackInQueue = queue[0]
 
-  return (
-    <TrackManagerContext.Provider value={contextValue}>
-      {children}
-    </TrackManagerContext.Provider>
-  );
-};
+        if (nextTrackInQueue) {
+            setQueue((currentQueue) => currentQueue.slice(1))
+            setCurrentTrack(nextTrackInQueue)
+            setIsPlaying(true)
 
-// Custom hook for using the context
-export const useTrackManager = () => {
-  const context = useContext(TrackManagerContext);
-  if (context === undefined) {
-    throw new Error(
-      "useTrackManager must be used within a TrackManagerProvider"
-    );
-  }
-  return context;
-};
+            return nextTrackInQueue
+        }
+
+        if (!playlist.length) {
+            setCurrentTrack(null)
+            setIsPlaying(false)
+            return null
+        }
+
+        const nextTrackIndex =
+            currentTrackIndex + 1 < playlist.length ? currentTrackIndex + 1 : 0
+
+        const nextTrack = playlist[nextTrackIndex]
+
+        setCurrentTrackIndex(nextTrackIndex)
+        setCurrentTrack(nextTrack)
+        setIsPlaying(true)
+
+        return nextTrack
+    }
+
+    function playPreviousTrack() {
+        if (!playlist.length) return null
+
+        const restartThreshold = 2
+        const currentPosition = audioRef.current?.currentTime || 0
+
+        if (currentPosition > restartThreshold) {
+            audioRef.current.currentTime = 0
+            return currentTrack
+        }
+
+        const previousTrackIndex =
+            currentTrackIndex === 0
+                ? playlist.length - 1
+                : currentTrackIndex - 1
+
+        const previousTrack = playlist[previousTrackIndex]
+
+        setCurrentTrackIndex(previousTrackIndex)
+        setCurrentTrack(previousTrack)
+        setIsPlaying(true)
+
+        return previousTrack
+    }
+
+    function shufflePlaylist() {
+        if (!currentTrack || !playlist.length) return
+
+        const shuffledPlaylist = shuffleArray(playlist, currentTrack)
+
+        setPlaylist(shuffledPlaylist)
+        setCurrentTrackIndex(0)
+        setCurrentTrack(shuffledPlaylist[0])
+        setIsShuffled(true)
+    }
+
+    function resetPlaylist() {
+        if (!currentTrack || !initialPlaylist.length) return
+
+        const nextTrackIndex = initialPlaylist.findIndex(
+            (track) => track.uniqueId === currentTrack.uniqueId
+        )
+
+        setPlaylist(initialPlaylist)
+        setCurrentTrackIndex(nextTrackIndex === -1 ? 0 : nextTrackIndex)
+        setIsShuffled(false)
+    }
+
+    function skipToTrack(uniqueId) {
+        const queuedTrackIndex = queue.findIndex(
+            (track) => track.uniqueId === uniqueId
+        )
+
+        if (queuedTrackIndex !== -1) {
+            const selectedTrack = queue[queuedTrackIndex]
+
+            setQueue((currentQueue) => currentQueue.slice(queuedTrackIndex + 1))
+            setCurrentTrack(selectedTrack)
+            resumeTrack()
+
+            return selectedTrack
+        }
+
+        const playlistTrackIndex = playlist.findIndex(
+            (track) => track.uniqueId === uniqueId
+        )
+
+        if (playlistTrackIndex !== -1) {
+            const selectedTrack = playlist[playlistTrackIndex]
+
+            setCurrentTrackIndex(playlistTrackIndex)
+            setCurrentTrack(selectedTrack)
+            resumeTrack()
+
+            return selectedTrack
+        }
+
+        console.error(`Track with uniqueId ${uniqueId} was not found.`)
+        return null
+    }
+
+    function createTrackInstance(track) {
+        return {
+            ...track,
+            trackId: track.trackId ?? track.id,
+            uniqueId: generateUniqueId(),
+        }
+    }
+
+    function addTrackInstance(track, setCollection) {
+        const newTrack = createTrackInstance(track)
+
+        setCollection((currentTracks) => [...currentTracks, newTrack])
+
+        return newTrack
+    }
+
+    function addTrackToPlaylist(track) {
+        return addTrackInstance(track, setPlaylist)
+    }
+
+    function addTrackToQueue(track) {
+        return addTrackInstance(track, setQueue)
+    }
+
+    function removeTrackByUniqueId(uniqueId, setCollection) {
+        setCollection((currentTracks) =>
+            currentTracks.filter((track) => track.uniqueId !== uniqueId)
+        )
+    }
+
+    function removeTrackFromPlaylist(uniqueId) {
+        removeTrackByUniqueId(uniqueId, setPlaylist)
+    }
+
+    function removeTrackFromQueue(uniqueId) {
+        removeTrackByUniqueId(uniqueId, setQueue)
+    }
+
+    function removeTrackFromManager(trackId) {
+        setInitialPlaylist((currentTracks) =>
+            removeTrackFromCollection(currentTracks, trackId)
+        )
+
+        setPlaylist((currentTracks) =>
+            removeTrackFromCollection(currentTracks, trackId)
+        )
+
+        setQueue((currentTracks) =>
+            removeTrackFromCollection(currentTracks, trackId)
+        )
+
+        setCurrentTrack((currentTrack) => {
+            if (Number(currentTrack?.id) !== Number(trackId)) {
+                return currentTrack
+            }
+
+            setIsPlaying(false)
+            return null
+        })
+    }
+
+    useEffect(() => {
+        if (queue.length > 0 && !currentTrack && playlist.length === 0) {
+            playNextTrack()
+        }
+    }, [queue, currentTrack, playlist.length])
+
+    useEffect(() => {
+        if (!lastDeletedTrackId?.trackId) return
+
+        removeTrackFromManager(lastDeletedTrackId.trackId)
+    }, [lastDeletedTrackId])
+
+    useEffect(() => {
+        if (!lastUpdatedTrack?.track) return
+
+        const updatedTrack = lastUpdatedTrack.track
+
+        setInitialPlaylist((currentTracks) =>
+            updateTrackCollection(currentTracks, updatedTrack)
+        )
+
+        setPlaylist((currentTracks) =>
+            updateTrackCollection(currentTracks, updatedTrack)
+        )
+
+        setQueue((currentTracks) =>
+            updateTrackCollection(currentTracks, updatedTrack)
+        )
+
+        setCurrentTrack((currentTrack) =>
+            Number(currentTrack?.id) === Number(updatedTrack.id)
+                ? { ...currentTrack, ...updatedTrack }
+                : currentTrack
+        )
+    }, [lastUpdatedTrack])
+
+    const contextValue = {
+        audioRef,
+
+        isPlaying,
+        setIsPlaying,
+        resumeTrack,
+        pauseTrack,
+
+        isShuffled,
+        setIsShuffled,
+
+        isTrackReadyInPlayer,
+        setIsTrackReadyInPlayer,
+
+        initialPlaylist,
+        initializePlaylist,
+
+        playlist,
+        setPlaylist,
+        startPlaylist,
+        shufflePlaylist,
+        resetPlaylist,
+
+        queue,
+        setQueue,
+        addTrackToQueue,
+        removeTrackFromQueue,
+
+        currentTrack,
+        setCurrentTrack,
+
+        currentTrackIndex,
+        setCurrentTrackIndex,
+
+        playNextTrack,
+        playPreviousTrack,
+        skipToTrack,
+
+        addTrackToPlaylist,
+        removeTrackFromPlaylist,
+        removeTrackFromManager,
+    }
+
+    return (
+        <TrackManagerContext.Provider value={contextValue}>
+            {children}
+        </TrackManagerContext.Provider>
+    )
+}
+
+export function useTrackManager() {
+    const context = useContext(TrackManagerContext)
+
+    if (!context) {
+        throw new Error(
+            'useTrackManager must be used within a TrackManagerProvider'
+        )
+    }
+
+    return context
+}

@@ -1,11 +1,12 @@
 // src/services/otp.js
 import axios from "axios";
-
+import getApiBaseUrl from '../utils/getApiBaseUrl';
+const API_BASE_URL = getApiBaseUrl();
 
 export const generateOtp = async (email, purpose) => {
   try {
     const response = await axios.post(
-      "/api/otp/generate",
+      `${API_BASE_URL}/otp/generate`,
       { email, purpose },
       { withCredentials: true }
     );
@@ -22,7 +23,7 @@ export const generateOtp = async (email, purpose) => {
 export const verifyOtp = async (email, otp_code, purpose) => {
   try {
     const response = await axios.post(
-      "/api/otp/verify",
+      `${API_BASE_URL}/otp/verify`,
       { email, otp_code, purpose },
       { withCredentials: true }
     );
@@ -39,7 +40,7 @@ export const verifyOtp = async (email, otp_code, purpose) => {
 export const checkOtpCooldown = async (email, purpose) => {
   try {
     const response = await axios.get(
-      "/api/otp/cooldown",
+      `${API_BASE_URL}/otp/cooldown`,
       { params: { email, purpose } }
     );
     return response.data;

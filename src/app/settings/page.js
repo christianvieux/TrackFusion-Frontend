@@ -1,26 +1,10 @@
-// src/app/settings/page.js
-"use client"
+"use client";
 
-import React from "react";
-import UpdatePasswordForm from "../components/UpdatePasswordForm";
-import UpdateProfilePictureForm from "../components/UpdateProfilePictureForm"
-import { useUserInfo } from "../context/UserInfoContext";
+import AccountSettings from "../components/AccountSettings";
 import withAuth from "../hoc/withAuth";
 
-function Settings() {
-    const { userInfo, setUserInfo } = useUserInfo();
+function SettingsPage() {
+  return <AccountSettings />;
+}
 
-    const onProfilePictureSubmit = async (newUrl) => {
-        setUserInfo((prev) => {
-          const updatedUrl = `${newUrl}?v=${new Date().getTime()}`;
-          return { ...prev, profile_picture_url: updatedUrl };
-        });
-      };
-
-    return (<div id="Settings" className="p-4 flex items-start flex-wrap justify-center gap-8 overflow-auto text-green">
-        <UpdateProfilePictureForm className="!self-start" initialProfilePicture={userInfo?.profile_picture_url} onSubmit={onProfilePictureSubmit}/>
-        <UpdatePasswordForm />
-    </div>)
-};
-
-export default withAuth(Settings);
+export default withAuth(SettingsPage);

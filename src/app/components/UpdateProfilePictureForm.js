@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   Button, 
-} from "@nextui-org/react";
+} from "@heroui/react";
 import ImageIcon from "./Icons/ImageIcon.js";
 import withAuth from "../hoc/withAuth.js";
 import { updateProfilePicture } from "../services/authService.js"

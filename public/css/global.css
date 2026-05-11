@@ -1,47 +1,240 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Import Tailwindcss && Hero UI styles */
+@import 'tailwindcss';
+@import '@heroui/styles';
 
+/* Tailwind CSS */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css' layer(utilities);
 
-@layer components {
-    .sidebarOptionIsActive {
-      @apply bg-purple-dark;
-    }
-    .trackIsBeingHovered {
-      @apply scale-102;
-    }
-  }
+/* Dark Variant */
+@custom-variant dark (&:where(.dark, .dark *));
 
+/* -------------------- */
+/* THEME */
+/* -------------------- */
 
-  /* Carousel (needed)*/
-  .embla {
-    overflow: hidden;
-  }
-  .embla__container {
-    display: flex;
-  }
-  .embla__slide {
-    flex: 0 0 100%;
-    /* min-width: 0; */
-  }
+@theme {
+    /* Core */
+    --color-background: #0a0a12;
+    --color-foreground: #22c55e;
 
-  /* Global scrollbar styling */
-* {
-  scrollbar-width: thin;  /* For Firefox */
-  scrollbar-color: #3a3239c4 transparent;  /* For Firefox */
+    /* Main text / buttons */
+    --color-primary: #a78bfa;
+    --color-primary-hover: #7c3aed;
+
+    /* Cards / panels */
+    --color-secondary: #0d0d1a;
+    --color-secondary-hover: #1a1a2e;
+    --color-secondary-foreground: #ffffff;
+
+    /* accents */
+    --color-accent: #16833e;
+    --color-accent-hover: #86efac;
+    --color-accent-foreground: #071a05;
+
+    /* Muted */
+    --color-muted: #111827;
+    --color-muted-foreground: #3b404a;
+
+    /* Success */
+    --color-success: #22c55e;
+    --color-success-hover: #4ade80;
+    --color-success-foreground: #052e16;
+
+    /* Warning */
+    --color-warning: #f8aa28;
+    --color-warning-foreground: #4a2400;
+
+    /* Danger */
+    --color-danger: #fd7067;
+    --color-danger-foreground: #fce4e3;
+
+    /* Tags */
+    --color-tag-a: #7abfb3;
+    --color-tag-a-bg: #7abfb31a;
+    --color-tag-a-border: #7abfb34d;
+
+    --color-tag-b: #7ab3ff;
+    --color-tag-b-bg: #7ab3ff1a;
+    --color-tag-b-border: #7ab3ff4d;
+
+    --color-tag-c: #c084fc;
+    --color-tag-c-bg: #c084fc1a;
+    --color-tag-c-border: #c084fc4d;
+
+    --color-tag-d: #f9a8d4;
+    --color-tag-d-bg: #f9a8d41a;
+    --color-tag-d-border: #f9a8d44d;
+
+    --color-tag-e: #facc15;
+    --color-tag-e-bg: #facc151a;
+    --color-tag-e-border: #facc154d;
+
+    --color-tag-f: #fb7185;
+    --color-tag-f-bg: #fb71851a;
+    --color-tag-f-border: #fb71854d;
+
+    --color-tag-g: #a3e635;
+    --color-tag-g-bg: #a3e6351a;
+    --color-tag-g-border: #a3e6354d;
+
+    --color-tag-h: #38bdf8;
+    --color-tag-h-bg: #38bdf81a;
+    --color-tag-h-border: #38bdf84d;
+
+    /* Shadows */
+    --shadow-card:
+        0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+
+    /* Breakpoints */
+    --breakpoint-nav: 950px;
+
+    /* -------------------- */
+    /* HERO UI COMPONENT COLORS */
+    /* -------------------- */
+    /* These override HeroUI's default component colors */
+
+    --background: var(--color-background);
+    --foreground: var(--color-foreground);
+
+    --surface: var(--color-secondary);
+    --surface-foreground: var(--color-secondary-foreground);
+
+    --overlay: var(--color-secondary);
+    --overlay-foreground: var(--color-foreground);
+
+    --accent: var(--color-primary);
+    --accent-foreground: var(--color-background);
+
+    --accent-soft: var(--color-secondary-hover);
+    --accent-soft-foreground: var(--color-primary);
+
+    --success: var(--color-success);
+    --success-foreground: var(--color-success-foreground);
+
+    --warning: var(--color-warning);
+    --warning-foreground: var(--color-warning-foreground);
+
+    --danger: var(--color-danger);
+    --danger-foreground: var(--color-danger-foreground);
+
+    --field-background: var(--color-muted);
+    --field-foreground: var(--color-foreground);
+    --field-placeholder: var(--color-muted-foreground);
+    --field-border: var(--color-accent);
+
+    --default: var(--color-secondary);
+    --default-foreground: var(--color-foreground);
+
+    --muted: var(--color-muted-foreground);
+    --border: var(--color-accent);
+    --focus: var(--color-primary);
+    --link: var(--color-primary);
+    --backdrop: rgb(0 0 0 / 0.55);
+    --scrollbar: #3a3239c4;
+
+    /* Playback */
+    --color-player: #071112;
+    --color-player-hover: #0d1d1b;
+    --color-player-foreground: #98cb76;
+    --color-player-muted: #5f8f55;
+    --color-player-accent: #93d66b;
+    --color-player-accent-hover: #a8e97a;
+    --color-player-line: #193628;
+
+    --player: var(--color-player);
+    --player-foreground: var(--color-player-foreground);
+    --player-muted: var(--color-player-muted);
+    --player-accent: var(--color-player-accent);
+    --player-line: var(--color-player-line);
 }
 
-/* For Chrome/Safari/Edge */
+/* -------------------- */
+/* GLOBAL STYLES */
+/* -------------------- */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    transition:
+        background-color 0.3s ease,
+        color 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+/* Scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #3a3239c4 transparent;
+}
+
 ::-webkit-scrollbar {
-  width: 8px;  /* Adjust width as needed */
+    width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+    background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
+    background-color: rgb(0 0 0 / 0.3);
+    border-radius: 4px;
 }
-  
+
+/* -------------------- */
+/* COMPONENTS */
+/* -------------------- */
+
+@layer components {
+    .card {
+        box-shadow: var(--shadow-card);
+    }
+
+    .sidebarOptionIsActive {
+        @apply bg-primary;
+    }
+
+    .trackIsBeingHovered {
+        @apply scale-[1.02];
+    }
+
+    .embla {
+        overflow: hidden;
+    }
+
+    .embla__container {
+        display: flex;
+    }
+
+    .embla__slide {
+        flex: 0 0 100%;
+    }
+}
+
+/* -------------------- */
+/* UTILITIES */
+/* -------------------- */
+
+@layer utilities {
+    .fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+}
+
+/* -------------------- */
+/* BASE */
+/* -------------------- */
+
+@layer base {
+    strong,
+    b {
+        @apply font-semibold text-primary;
+    }
+}

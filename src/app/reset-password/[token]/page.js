@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { resetPassword, verifyResetToken } from "../../services/authService";
-import { Input, Button } from "@nextui-org/react";
+import { Input, Button } from "@heroui/react";
 import { EyeFilledIcon } from "../../components/Icons/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../../components/Icons/EyeSlashFilledIcon";
 

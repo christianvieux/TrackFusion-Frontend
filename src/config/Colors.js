@@ -2,16 +2,14 @@
 // Desc: Colors for the track list
 
 const colorClasses = [
-    'default',
-    'primary',  // bg-primary would be a custom class in your CSS
-    'secondary',
-    'success',
-    'warning',
-    'danger',
-    // green: 'green',
-    // info: 'bnfo',
-    // light: 'light',
-    // dark: 'bdark',
+    'tag-a',
+    'tag-b',
+    'tag-c',
+    'tag-d',
+    'tag-e',
+    'tag-f',
+    'tag-g',
+    'tag-h',
 ];
 
 // Save the original length of the colorClasses array
@@ -19,9 +17,8 @@ const originalColorClassLength = colorClasses.length;
 
 const manualColorClasses = {
     instrumental: colorClasses[1],
-    song: colorClasses[4],
-    angry: colorClasses[5],
-    happy: colorClasses[2],
+    song: colorClasses[2],
+    angry: colorClasses[3],
     // 'rock': colorClasses.primary,
     // 'pop': colorClasses.secondary,
     // Add other manual assignments here

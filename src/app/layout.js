@@ -5,8 +5,8 @@ import React from "react";
 import App from "./components/app.js";
 import { SessionProvider } from "./context/SessionContext.js";
 import { UserInfoProvider } from "./context/UserInfoContext";
-import { Providers } from "./components/Providers/NextUI_Provider.js";
 import { DynamicStyles } from "./components/DynamicStyles";
+import { TrackEventsProvider } from "./context/TrackEventsContext";
 
 const RootLayout = ({ children }) => {
   return (
@@ -16,13 +16,13 @@ const RootLayout = ({ children }) => {
         <DynamicStyles />
       </head>
       <body className="h-screen bg-green-darkest">
-        <Providers>
           <SessionProvider>
             <UserInfoProvider>
-              <App>{children}</App>
+              <TrackEventsProvider>
+                <App>{children}</App>
+              </TrackEventsProvider>
             </UserInfoProvider>
           </SessionProvider>
-        </Providers>
       </body>
     </html>
   );

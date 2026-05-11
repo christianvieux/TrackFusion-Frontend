@@ -1,11 +1,13 @@
 // src/app/app/services/audio.js
 import axios from "axios";
 import { awsUploadService } from './awsService';
-
+import getApiBaseUrl from '../utils/getApiBaseUrl';
+// API base URL
+const API_BASE_URL = getApiBaseUrl();
 export async function analyzeAudio(file, bpmRange, onUploadProgress = () => {}, onAnalysisProgress = () => {}) {
   try {
     // 1. Get presigned URL for upload
-    const { data: fileUrl } = await axios.post('/api/aws/presigned-url', {
+    const { data: fileUrl } = await axios.post(`${API_BASE_URL}/aws/presigned-url`, {
       fileName: file.name,
       type: 'track'
     });
@@ -19,7 +21,7 @@ export async function analyzeAudio(file, bpmRange, onUploadProgress = () => {}, 
 
     onUploadProgress(0); // Reset progress to make it dissapear
     // 3. Start analysis
-    const { data } = await axios.post('/api/audio/analyze', {
+    const { data } = await axios.post(`${API_BASE_URL}/audio/analyze`, {
       trackUrl: fileUrl,
       bpmRange
     });
@@ -28,7 +30,7 @@ export async function analyzeAudio(file, bpmRange, onUploadProgress = () => {}, 
 
     // 4. Poll for results
     while (true) {
-      const { data: status } = await axios.get(`/api/audio/analysis-status/${jobId}`);
+      const { data: status } = await axios.get(`${API_BASE_URL}/audio/analysis-status/${jobId}`);
       let progress;
       switch (status.progress) {
         case 'downloading':
@@ -68,7 +70,7 @@ export async function analyzeAudio(file, bpmRange, onUploadProgress = () => {}, 
 
 export async function startConversion(data) {
   try {
-    const response = await axios.post("/api/audio/convert-url", data, {
+    const response = await axios.post(`${API_BASE_URL}/audio/convert-url`, data, {
       withCredentials: true,
     });
     return response.data.jobId;
@@ -78,7 +80,7 @@ export async function startConversion(data) {
 }
 export async function checkConversionStatus(jobId) {
   try {
-    const statusResponse = await axios.get(`/api/audio/status/${jobId}`);
+    const statusResponse = await axios.get(`${API_BASE_URL}/audio/status/${jobId}`);
     const resultResponse = statusResponse.data.state === 'completed' 
       ? await axios.get(`/api/audio/result/${jobId}`)
       : null;
@@ -94,7 +96,7 @@ export async function checkConversionStatus(jobId) {
 }
 export async function downloadConvertedFile(jobId) {
   try {
-    const response = await axios.get(`/api/audio/download/${jobId}`, {
+    const response = await axios.get(`${API_BASE_URL}/audio/download/${jobId}`, {
       responseType: 'blob'
     });
     return response.data;

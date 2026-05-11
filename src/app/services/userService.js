@@ -1,12 +1,14 @@
 // src/services/user.js
 import axios from "axios";
+import getApiBaseUrl from '../utils/getApiBaseUrl';
 
+const API_BASE_URL = getApiBaseUrl();
 
 
 export const deleteOwnedTrack = async (trackId) => {
   try {
     const response = await axios.delete(
-      `/api/tracks/${trackId}`,
+      `${API_BASE_URL}/tracks/${trackId}`,
       {
         data: {
           trackId
@@ -28,7 +30,7 @@ export const deleteOwnedTrack = async (trackId) => {
 export const removeFavoriteTrack = async (trackId, userId) => {
   try {
     const response = await axios.delete(
-      "/api/tracks/favorites",
+      `${API_BASE_URL}/tracks/favorites`,
       {
         data: { userId, trackId },
         withCredentials: true
@@ -47,7 +49,7 @@ export const removeFavoriteTrack = async (trackId, userId) => {
 export const addFavoriteTrack = async (trackId, userId) => {
   try {
     const response = await axios.post(
-      "/api/tracks/favorites",
+      `${API_BASE_URL}/tracks/favorites`,
       { trackId, userId },
       { withCredentials: true }
     );
@@ -63,7 +65,7 @@ export const addFavoriteTrack = async (trackId, userId) => {
 
 export const fetchFavoriteTracks = async (userId) => {
   try {
-    const response = await axios.get("/api/tracks/favorites", {
+    const response = await axios.get(`${API_BASE_URL}/tracks/favorites`, {
       params: { userId }, // Correctly pass userId as part of the params object
       withCredentials: true,
     });
@@ -81,7 +83,7 @@ export const fetchFavoriteTracks = async (userId) => {
 
 export const fetchOwnedTracks = async (userId) => {
   try {
-    const response = await axios.get("/api/tracks/user", {
+    const response = await axios.get(`${API_BASE_URL}/tracks/user`, {
       params: { userId }, // Correctly pass userId as part of the params object
       withCredentials: true,
     });
@@ -102,7 +104,7 @@ export const fetchOwnedTracks = async (userId) => {
 
 export const register = async (email, username, password, otp_code) => {
   try {
-    const response = await axios.post('/api/users/register', { email, username, password, otp_code }, { withCredentials: true });
+    const response = await axios.post(`${API_BASE_URL}/users/register`, { email, username, password, otp_code }, { withCredentials: true });
 
     return response.data;
   } catch (error) {
@@ -116,7 +118,7 @@ export const register = async (email, username, password, otp_code) => {
 
 export const checkEmail = async (email) => {
   try {
-    const response = await axios.post('/api/users/check-email', { email }, { withCredentials: true });
+    const response = await axios.post(`${API_BASE_URL}/users/check-email`, { email }, { withCredentials: true });
     
     return response.data;
   } catch (error) {
@@ -130,7 +132,7 @@ export const checkEmail = async (email) => {
 
 export const fetchPublicUserInfo = async (userId) => {
   try {
-    const response = await axios.get(`/api/users/info/${userId}`, { withCredentials: true });
+    const response = await axios.get(`${API_BASE_URL}/users/info/${userId}`, { withCredentials: true });
 
     return response.data;
   } catch (error) {
@@ -145,7 +147,7 @@ export const fetchPublicUserInfo = async (userId) => {
 
 export const fetchUserPublicFavoriteTracks = async (userId) => {
   try {
-    const response = await axios.get(`/api/public/favorite-tracks/${userId}`, { withCredentials: true });
+    const response = await axios.get(`${API_BASE_URL}/public/favorite-tracks/${userId}`, { withCredentials: true });
     return response.data;
   } catch (error) {
     if (error.response && error.response.data && error.response.data.error) {
@@ -158,7 +160,7 @@ export const fetchUserPublicFavoriteTracks = async (userId) => {
 
 export const fetchUserPublicTracks = async (userId) => {
   try {
-    const response = await axios.get(`/api/public/tracks/${userId}`, { withCredentials: true });
+    const response = await axios.get(`${API_BASE_URL}/public/tracks/${userId}`, { withCredentials: true });
     return response.data;
   } catch (error) {
     if (error.response && error.response.data && error.response.data.error) {

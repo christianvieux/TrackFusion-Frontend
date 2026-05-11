@@ -1,406 +1,347 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+'use client'
+
+import React, { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button, Input, TextArea } from '@heroui/react'
+import ImageIcon from '../components/Icons/ImageIcon'
+import IsTrackPublicCheckbox from '../components/isTrackPublic_Checkbox'
+import UploadIcon from '../components/Icons/UploadIcon'
+
 import {
-  Input,
-  Button,
-  Select,
-  SelectItem,
-  Textarea,
-  Progress,
-} from "@nextui-org/react";
-import IsTrackPublic_Checkbox from "../components/isTrackPublic_Checkbox";
-import { uploadTrack } from "../services/trackService";
-import withAuth from "../hoc/withAuth.js";
-import { fetchTrackAttributes } from "../services/enumService.js";
-import ImageIcon from "../components/Icons/ImageIcon.js";
-import { XCircle } from "lucide-react";
+    FileUploadField,
+    FormMessage,
+    TrackMetadataSelect,
+    UploadProgress,
+} from '../components/Upload'
 
-const ALLOWED_AUDIO_TYPES = process.env.NEXT_PUBLIC_ALLOWED_AUDIO_TYPES.split(',');
-const ALLOWED_IMAGE_TYPES = process.env.NEXT_PUBLIC_ALLOWED_IMAGE_TYPES.split(',');
+import withAuth from '../hoc/withAuth'
+import { fetchTrackAttributes } from '../services/enumService'
+import { uploadTrack } from '../services/trackService'
 
-// File Upload Component
-const FileUploadField = ({ type, file, onFileChange, onRemove, allowedTypes, icon: Icon, label }) => (
-  <div className="relative">
-    <label className="flex grow justify-center rounded-lg border-2 border-dashed border-gray/70 bg-gray-darkest/50 p-4 transition-colors hover:border-gray-light/70">
-      <input
-        name={type === 'track' ? 'trackFile' : 'imageFile'}
-        className="hidden"
-        type="file"
-        accept={allowedTypes.join(",")}
-        onChange={onFileChange}
-      />
-      <div className="flex items-center gap-2">
-        {Icon}
-        <span>{label}</span>
-      </div>
-    </label>
-    {file && (
-      <div className="mt-2 flex items-center justify-between rounded-md bg-gray-dark/30 p-2">
-        <p className="truncate text-sm">{file.name}</p>
-        <Button
-          isIconOnly
-          variant="light"
-          className="text-red-500"
-          onClick={onRemove}
-        >
-          <XCircle size={20} />
-        </Button>
-      </div>
-    )}
-  </div>
-);
+import {
+    DEFAULT_TRACK_METADATA,
+    UPLOAD_PROGRESS,
+    getAllowedTypes,
+    getFileExtensions,
+    removeFileExtension,
+    validateTrackName,
+} from '../components/Upload/utils'
 
-// Track Metadata Selection Component
-const TrackTypeSelection = ({
-  trackType,
-  options,
-  className,
-  setTrackMetadata,
-  trackMetadata,
-  allowMultiple,
-  isDisabled,
-  ...rest
-}) => {
-  const handleSelectionChange = (selectedItems) => {
-    const selectedArray = Array.isArray(selectedItems)
-      ? selectedItems
-      : Array.from(selectedItems);
-    setTrackMetadata((prev) => ({
-      ...prev,
-      [trackType]: selectedArray.join(","),
-    }));
-  };
+const ALLOWED_AUDIO_TYPES = getAllowedTypes(
+    process.env.NEXT_PUBLIC_ALLOWED_AUDIO_TYPES
+)
 
-  return (
-    <Select
-      isRequired
-      label={`Track ${trackType.charAt(0).toUpperCase() + trackType.slice(1)}`}
-      placeholder={`Select a ${trackType}`}
-      className={`max-w-full ${className}`}
-      onSelectionChange={handleSelectionChange}
-      isDisabled={isDisabled}
-      {...rest}
-    >
-      {options.map((item) => (
-        <SelectItem key={item} className="text-green">
-          {item.charAt(0).toUpperCase() + item.slice(1)}
-        </SelectItem>
-      ))}
-    </Select>
-  );
-};
-
-// Upload Progress Component
-const UploadProgress = ({ state, progress }) => {
-  const stateMessages = {
-    PREPARING: "Preparing files...",
-    UPLOADING: "Uploading files...",
-    PROCESSING: "Processing track...",
-    COMPLETED: "Upload complete!",
-  };
-
-  return (
-    <div className="space-y-2">
-      <Progress
-        size="sm"
-        value={progress}
-        color="success"
-        className="max-w-md"
-      />
-      <p className="text-sm text-green">{stateMessages[state]}</p>
-    </div>
-  );
-};
+const ALLOWED_IMAGE_TYPES = getAllowedTypes(
+    process.env.NEXT_PUBLIC_ALLOWED_IMAGE_TYPES
+)
 
 function UploadPage() {
-  const router = useRouter();
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadState, setUploadState] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [trackFile, setTrackFile] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
-  const [trackName, setTrackName] = useState("");
-  const [trackDescription, setTrackDescription] = useState("");
-  const [isPublic, setIsPublic] = useState(false);
-  const [trackMetadata, setTrackMetadata] = useState({});
-  const [trackAttributesList, setTrackAttributesList] = useState({});
-  const [error, setError] = useState(null);
-  const [trackNameError, setTrackNameError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+    const router = useRouter()
 
-  // Validation functions remain the same...
-  const validateTrackName = (name) => {
-    const MIN_LENGTH = 3;
-    const MAX_LENGTH = 100;
-    const sanitized = name.trim();
-    
-    if (sanitized.length < MIN_LENGTH) {
-      return { isValid: false, error: `Track name must be at least ${MIN_LENGTH} characters` };
-    }
-    if (sanitized.length > MAX_LENGTH) {
-      return { isValid: false, error: `Track name must be less than ${MAX_LENGTH} characters` };
-    }
-    if (!/^[a-zA-Z0-9\s\-_.,!'"`()]+$/.test(sanitized)) {
-      return { isValid: false, error: "Track name contains invalid characters" };
-    }
-    return { isValid: true, sanitized };
-  };
+    const [isUploading, setIsUploading] = useState(false)
+    const [uploadState, setUploadState] = useState(null)
+    const [uploadProgress, setUploadProgress] = useState(0)
 
-  // File handling functions
-  const handleFileChange = (e, type) => {
-    const file = e.target.files[0];
-    setSuccessMessage(null);
-    
-    if (!file) return;
+    const [trackFile, setTrackFile] = useState(null)
+    const [imageFile, setImageFile] = useState(null)
 
-    if (type === 'track') {
-      if (ALLOWED_AUDIO_TYPES.includes(file.type)) {
-        setTrackFile(file);
-        handleTrackNameChange(file.name.replace(/\.[^/.]+$/, ""));
-        setError(null);
-      } else {
-        setError(`Please upload a valid audio file: ${ALLOWED_AUDIO_TYPES.map(type => '.' + type.split('/')[1]).join(', ')}`);
-      }
-    } else {
-      if (ALLOWED_IMAGE_TYPES.includes(file.type)) {
-        setImageFile(file);
-        setError(null);
-      } else {
-        setError(`Please upload a valid image file: ${ALLOWED_IMAGE_TYPES.map(type => '.' + type.split('/')[1]).join(', ')}`);
-      }
-    }
-  };
+    const [trackName, setTrackName] = useState('')
+    const [trackNameError, setTrackNameError] = useState(null)
+    const [trackDescription, setTrackDescription] = useState('')
+    const [isPublic, setIsPublic] = useState(false)
 
-  const handleRemoveFile = (type) => {
-    if (type === 'track') {
-      setTrackFile(null);
-      setTrackName("");
-    } else {
-      setImageFile(null);
-    }
-  };
+    const [trackMetadata, setTrackMetadata] = useState(DEFAULT_TRACK_METADATA)
+    const [trackAttributesList, setTrackAttributesList] = useState({})
 
-  const handleTrackNameChange = (newName) => {
-    setTrackName(newName);
-    const { isValid, error } = validateTrackName(newName);
-    setTrackNameError(isValid ? null : error);
-  };
+    const [error, setError] = useState(null)
+    const [successMessage, setSuccessMessage] = useState(null)
 
-  const handleUpload = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setSuccessMessage(null);
-    
-    if (!trackFile || trackName.trim() === "") {
-      setError("Please select a track file and enter a track name.");
-      return;
+    const sortedAttributeKeys = useMemo(() => {
+        return Object.keys(trackAttributesList).sort((a, b) => {
+            if (a === 'category') return -1
+            if (b === 'category') return 1
+            return a.localeCompare(b)
+        })
+    }, [trackAttributesList])
+
+    const canShowBpm =
+        trackMetadata.category === 'Song' ||
+        trackMetadata.category === 'Instrumental' ||
+        trackMetadata.category === 'Remix'
+
+    const canSubmit =
+        trackFile && trackName.trim() && !trackNameError && !isUploading
+
+    function resetForm() {
+        setTrackFile(null)
+        setImageFile(null)
+        setTrackName('')
+        setTrackNameError(null)
+        setTrackDescription('')
+        setIsPublic(false)
+        setTrackMetadata(DEFAULT_TRACK_METADATA)
+        setError(null)
+        setSuccessMessage(null)
     }
 
-    const { isValid, error } = validateTrackName(trackName);
-    if (!isValid) {
-      setError(error);
-      return;
+    function handleTrackNameChange(nextName) {
+        setTrackName(nextName)
+
+        const validation = validateTrackName(nextName)
+        setTrackNameError(validation.isValid ? null : validation.error)
     }
 
-    setIsUploading(true);
+    function handleFileChange(event, type) {
+        const file = event.target.files?.[0]
 
-    const formData = new FormData();
-    formData.append("trackFile", trackFile);
-    formData.append("name", trackName);
-    formData.append("description", trackDescription);
-    formData.append("is_private", !isPublic);
-    
-    Object.keys(trackMetadata).forEach((key) => {
-      formData.append(key, trackMetadata[key]);
-    });
-    
-    if (imageFile) {
-      formData.append("imageFile", imageFile);
+        setError(null)
+        setSuccessMessage(null)
+
+        if (!file) return
+
+        const isTrackFile = type === 'track'
+        const allowedTypes = isTrackFile
+            ? ALLOWED_AUDIO_TYPES
+            : ALLOWED_IMAGE_TYPES
+
+        if (!allowedTypes.includes(file.type)) {
+            setError(
+                `Please upload a valid ${
+                    isTrackFile ? 'audio' : 'image'
+                } file: ${getFileExtensions(allowedTypes)}`
+            )
+
+            return
+        }
+
+        if (isTrackFile) {
+            setTrackFile(file)
+            handleTrackNameChange(removeFileExtension(file.name))
+            return
+        }
+
+        setImageFile(file)
     }
 
-    try {
-      await uploadTrack(formData, (state) => {
-        setUploadState(state);
-        // Map states to progress percentages
-        const progressMap = {
-          PREPARING: 25,
-          UPLOADING: 50,
-          PROCESSING: 75,
-          COMPLETED: 100,
-        };
-        setUploadProgress(progressMap[state] || 0);
-      });
-      setSuccessMessage("Track uploaded successfully!");
-      router.push("/myTracks");
-    } catch (error) {
-      setError(error.toString());
-    } finally {
-      setIsUploading(false);
-      setUploadState(null);
-      setUploadProgress(0);
+    function removeFile(type) {
+        if (type === 'track') {
+            setTrackFile(null)
+            setTrackName('')
+            setTrackNameError(null)
+            return
+        }
+
+        setImageFile(null)
     }
-  };
 
-  // Load track attributes
-  useEffect(() => {
-    const loadAttributes = async () => {
-      try {
-        const attributes = await fetchTrackAttributes();
-        setTrackAttributesList(attributes);
-      } catch (error) {
-        setError("Failed to fetch track attributes. Please try again.");
-      }
-    };
-    loadAttributes();
-  }, []);
+    function buildFormData() {
+        const formData = new FormData()
 
-  useEffect(() => {
-    // This ensures metadata is only set on the client side
-    setTrackMetadata({
-      category: "",
-      genre: [],
-      mood: [],
-      bpm: 0,
-    });
-  }, []);
+        formData.append('trackFile', trackFile)
+        formData.append('name', trackName.trim())
+        
+        // Only append description if it has a value
+        if (trackDescription && trackDescription.trim()) {
+            formData.append('description', trackDescription.trim())
+        }
+        
+        formData.append('is_private', !isPublic)
 
-  return (
-    <div className="mx-auto max-w-2xl p-4 text-green">
-      <div className="rounded-lg border-2 border-gray-dark bg-black/60 p-6">
-        <form encType="multipart/form-data" onSubmit={handleUpload} className="space-y-6">
-          <div className="space-y-4">
-            <FileUploadField
-              type="track"
-              file={trackFile}
-              onFileChange={(e) => handleFileChange(e, 'track')}
-              onRemove={() => handleRemoveFile('track')}
-              allowedTypes={ALLOWED_AUDIO_TYPES}
-              icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-              </svg>}
-              label="Upload Track"
-            />
+        Object.entries(trackMetadata).forEach(([key, value]) => {
+            // Only append metadata fields that have actual values
+            if (value !== '' && value !== null && value !== undefined) {
+                formData.append(key, value)
+            }
+        })
 
-            <FileUploadField
-              type="image"
-              file={imageFile}
-              onFileChange={(e) => handleFileChange(e, 'image')}
-              onRemove={() => handleRemoveFile('image')}
-              allowedTypes={ALLOWED_IMAGE_TYPES}
-              icon={<ImageIcon className="size-6" />}
-              label="Upload Cover Image (Optional)"
-            />
-          </div>
+        if (imageFile) {
+            formData.append('imageFile', imageFile)
+        }
 
-          <div className="space-y-4">
-            <Input
-              name="trackName"
-              variant="faded"
-              label="Track Name"
-              value={trackName}
-              onChange={(e) => handleTrackNameChange(e.target.value)}
-              isDisabled={isUploading}
-              isInvalid={trackNameError}
-              errorMessage={trackNameError}
-            />
+        return formData
+    }
 
-            <Textarea
-              label="Description"
-              variant="faded"
-              placeholder="Enter a description for your track (optional)"
-              value={trackDescription}
-              onChange={(e) => setTrackDescription(e.target.value)}
-              isDisabled={isUploading}
-              className="min-h-[100px]"
-            />
+    async function handleUpload(event) {
+        event.preventDefault()
 
-            {Object.keys(trackAttributesList)
-              .sort((a, b) => (a === "category" ? -1 : b === "category" ? 1 : 0))
-              .map((filter) => (
-                <TrackTypeSelection
-                  key={filter}
-                  trackType={filter}
-                  options={trackAttributesList[filter].values}
-                  selectionMode={trackAttributesList[filter].allowMultiple ? "multiple" : "single"}
-                  setTrackMetadata={setTrackMetadata}
-                  trackMetadata={trackMetadata}
-                  isDisabled={isUploading}
-                />
-              ))}
+        setError(null)
+        setSuccessMessage(null)
 
-            {(trackMetadata.category === "Song" ||
-              trackMetadata.category === "Instrumental" ||
-              trackMetadata.category === "Remix") && (
-              <Input
-                variant="faded"
-                label="BPM (Optional)"
-                value={trackMetadata.bpm}
-                onChange={(e) => setTrackMetadata({ ...trackMetadata, bpm: e.target.value })}
-                isDisabled={isUploading}
-              />
-            )}
+        if (!trackFile || !trackName.trim()) {
+            setError('Please select a track file and enter a track name.')
+            return
+        }
 
-            <div className="pt-2">
-              <IsTrackPublic_Checkbox
-                setIsPublic={setIsPublic}
-                isDisabled={isUploading}
-              />
-            </div>
-          </div>
+        const validation = validateTrackName(trackName)
 
-          {uploadState && (
-            <UploadProgress
-              state={uploadState}
-              progress={uploadProgress}
-            />
-          )}
+        if (!validation.isValid) {
+            setError(validation.error)
+            return
+        }
 
-          {successMessage && (
-            <p className="text-center text-green-light">{successMessage}</p>
-          )}
-          
-          {error && (
-            <p className="text-center text-red">{error}</p>
-          )}
+        setIsUploading(true)
 
-          <div className="flex gap-4 pt-4">
-            <Button
-              className="flex-1"
-              color="primary"
-              variant="ghost"
-              type="submit"
-              isLoading={isUploading}
-              isDisabled={!trackFile || trackName.trim() === "" || isUploading || trackNameError}
+        try {
+            await uploadTrack(buildFormData(), (state) => {
+                setUploadState(state)
+                setUploadProgress(UPLOAD_PROGRESS[state] || 0)
+            })
+
+            setSuccessMessage('Track uploaded successfully.')
+            router.push('/myTracks')
+        } catch (error) {
+            setError(error?.message || String(error))
+        } finally {
+            setIsUploading(false)
+            setUploadState(null)
+            setUploadProgress(0)
+        }
+    }
+
+    useEffect(() => {
+        async function loadAttributes() {
+            try {
+                const attributes = await fetchTrackAttributes()
+                setTrackAttributesList(attributes)
+            } catch {
+                setError('Failed to fetch track attributes. Please try again.')
+            }
+        }
+
+        loadAttributes()
+    }, [])
+
+    return (
+        <main className="mx-auto min-h-screen max-w-2xl bg-background p-4 text-foreground">
+            <form
+                encType="multipart/form-data"
+                onSubmit={handleUpload}
+                className="space-y-6 rounded-lg border-2 border-accent bg-secondary p-6 shadow-card"
             >
-              {isUploading ? "Uploading..." : "Submit"}
-            </Button>
-            <Button
-              className="flex-1"
-              variant="ghost"
-              color="danger"
-              type="button"
-              isDisabled={isUploading}
-              onClick={() => {
-                handleRemoveFile('track');
-                handleRemoveFile('image');
-                setTrackDescription("");
-                setIsPublic(false);
-                setTrackMetadata({
-                  category: "",
-                  genre: [],
-                  mood: [],
-                  bpm: 0,
-                });
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+                <div className="space-y-4">
+                    <FileUploadField
+                        type="track"
+                        file={trackFile}
+                        label="Upload Track"
+                        allowedTypes={ALLOWED_AUDIO_TYPES}
+                        icon={<UploadIcon className="size-6" />}
+                        onFileChange={(event) =>
+                            handleFileChange(event, 'track')
+                        }
+                        onRemove={() => removeFile('track')}
+                        isDisabled={isUploading}
+                    />
+
+                    <FileUploadField
+                        type="image"
+                        file={imageFile}
+                        label="Upload Cover Image Optional"
+                        allowedTypes={ALLOWED_IMAGE_TYPES}
+                        icon={<ImageIcon className="size-6" />}
+                        onFileChange={(event) =>
+                            handleFileChange(event, 'image')
+                        }
+                        onRemove={() => removeFile('image')}
+                        isDisabled={isUploading}
+                    />
+                </div>
+
+                <div className="space-y-4">
+                    <Input
+  name="trackName"
+  className="w-full"
+  placeholder="Track name"
+  value={trackName}
+  onChange={(event) => handleTrackNameChange(event.target.value)}
+  disabled={isUploading}
+  aria-invalid={Boolean(trackNameError)}
+/>
+
+{trackNameError && (
+  <p className="text-xs text-danger">
+    {trackNameError}
+  </p>
+)}
+
+                    <TextArea
+  aria-label="Track description"
+  className="h-32 w-full"
+  placeholder="Add a short description optional"
+  value={trackDescription}
+  onChange={(event) => setTrackDescription(event.target.value)}
+  disabled={isUploading}
+/>
+
+                    {sortedAttributeKeys.map((attributeKey) => {
+                        const attribute = trackAttributesList[attributeKey]
+
+                        return (
+                            <TrackMetadataSelect
+                                key={attributeKey}
+                                name={attributeKey}
+                                options={attribute.values}
+                                allowMultiple={attribute.allowMultiple}
+                                isDisabled={isUploading}
+                                setTrackMetadata={setTrackMetadata}
+                            />
+                        )
+                    })}
+
+                    {canShowBpm && (
+                        <Input
+                            variant="faded"
+                            label="BPM Optional"
+                            value={trackMetadata.bpm}
+                            onChange={(event) =>
+                                setTrackMetadata((currentMetadata) => ({
+                                    ...currentMetadata,
+                                    bpm: event.target.value,
+                                }))
+                            }
+                            isDisabled={isUploading}
+                        />
+                    )}
+
+                    <div className="pt-2">
+                        <IsTrackPublicCheckbox
+  isPublic={isPublic}
+  setIsPublic={setIsPublic}
+  isDisabled={isUploading}
+/>
+                    </div>
+                </div>
+
+                <UploadProgress state={uploadState} progress={uploadProgress} />
+
+                <FormMessage type="success">{successMessage}</FormMessage>
+                <FormMessage type="error">{error}</FormMessage>
+
+                <div className="flex gap-4 pt-4">
+                    <Button
+                        className="flex-1"
+                        color="primary"
+                        variant="ghost"
+                        type="submit"
+                        isLoading={isUploading}
+                        isDisabled={!canSubmit}
+                    >
+                        {isUploading ? 'Uploading...' : 'Submit'}
+                    </Button>
+
+                    <Button
+                        className="flex-1"
+                        variant="ghost"
+                        color="danger"
+                        type="button"
+                        isDisabled={isUploading}
+                        onClick={resetForm}
+                    >
+                        Cancel
+                    </Button>
+                </div>
+            </form>
+        </main>
+    )
 }
 
-export default withAuth(UploadPage);
+export default withAuth(UploadPage)

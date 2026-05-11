@@ -1,84 +1,104 @@
-//src/app/login/page.js
-
 "use client";
-import React, { useEffect, useState } from "react";
-import { Input } from "@nextui-org/react";
-import Password_Input from "../components/Password_Input";
-import { Button } from "@nextui-org/button";
-import { useSession } from "../context/SessionContext.js";
+
+import { useEffect, useState } from "react";
+import { Button, Form } from "@heroui/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import CustomInput from "../components/CustomInput";
+
+import AuthCard from "../components/Auth/AuthCard";
+import AuthMessage from "../components/Auth/AuthMessage";
+import AuthPasswordField from "../components/Auth/AuthPasswordField";
+import AuthTextField from "../components/Auth/AuthTextField";
+import { validateEmail } from "../components/Auth/AuthValidation";
+import { useSession } from "../context/SessionContext";
 
 export default function LoginPage() {
-  const { isLoggedIn, login, error:sessionError, setError:setSessionError, loading: sessionLoading } = useSession();
   const router = useRouter();
-  const [error, setError] = useState(""); // State for error message
+  const {
+    isLoggedIn,
+    login,
+    error: sessionError,
+    loading: sessionLoading,
+  } = useSession();
+
+  const [error, setError] = useState("");
 
   async function handleSubmit(event) {
     event.preventDefault();
-    setError(""); // Reset error message
+    setError("");
 
     const formData = new FormData(event.currentTarget);
     const email = formData.get("email");
     const password = formData.get("password");
 
     try {
-      const response = await login({email, password});
-
-      // Handle successful login, e.g., redirect to a different page
-      console.log("Logged in", response);
-      router.push("/myTracks"); // Redirect to profile or any protected page
+      await login({ email, password });
+      router.push("/myTracks");
     } catch (error) {
-      setError(error.message); // Set error message
+      setError(error.message || "Login failed");
     }
   }
 
-  // update error
   useEffect(() => {
-    setError(sessionError)
-  }, [sessionError])
+    if (sessionError) setError(sessionError);
+  }, [sessionError]);
 
-  // Redirect to another page if the user is already authenticated
   useEffect(() => {
-    if (isLoggedIn) {
-      router.push("/feed"); // Redirect to the desired page
-    }
-  }, [router, isLoggedIn]);
-  
+    if (isLoggedIn) router.push("/feed");
+  }, [isLoggedIn, router]);
 
   return (
-    <div
+    <main
       id="login"
-      className="flex size-[400px] flex-col justify-between self-center rounded-lg border-2 border-purple-dark bg-green-darkest/30 p-4 text-white shadow-lg"
+      className="flex size-full items-center justify-center p-4"
     >
-      <h1 className="text-center text-3xl text-green">User Login</h1>
-      {error && <p className="text-center text-red">{error}</p>}{" "}
-      {/* Display error message */}
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4" autoComplete="on">
-        <CustomInput
-          name="email"
-          // classNames={{ inputWrapper: "" }}
-          fullWidth={false}
-          type="email"
-          placeholder="Enter your email"
-          autocomplete="email"
-          variant="light"
-        />
-        <Password_Input autoComplete="current-password" placeholder="Enter your password"/>
-        <a href="/forgot-password" className="self-end text-green-light">
-          Forgot Password?
-        </a>
-        <Button color="primary" type="submit">
-          Login
-        </Button>
-      </form>
-      <div className="flex items-center gap-2">
-        {/* Using flex to make the elements display in the same line */}
-        <p className="">Don't have an account?</p>
-        <a href="/signup" className="text-green-light">
-          Sign up
-        </a>
-      </div>
-    </div>
+      <AuthCard
+        title="User Login"
+        footer={
+          <>
+            <span>Don&apos;t have an account?</span>
+            <Link href="/signup" className="text-primary hover:text-primary-hover">
+              Sign up
+            </Link>
+          </>
+        }
+      >
+        <Form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <AuthMessage message={error} />
+
+          <AuthTextField
+            isRequired
+            name="email"
+            type="email"
+            label="Email"
+            placeholder="Enter your email"
+            autoComplete="email"
+            validate={validateEmail}
+          />
+
+          <AuthPasswordField
+            isRequired
+            name="password"
+            label="Password"
+            placeholder="Enter your password"
+          />
+
+          <Link
+            href="/forgot-password"
+            className="self-end text-sm text-primary hover:text-primary-hover"
+          >
+            Forgot Password?
+          </Link>
+
+          <Button
+            type="submit"
+            className="w-full bg-foreground text-background hover:bg-foreground/80"
+            isLoading={sessionLoading}
+          >
+            Login
+          </Button>
+        </Form>
+      </AuthCard>
+    </main>
   );
 }

@@ -1,61 +1,62 @@
-// src/app/components/TrackListQueue/useDragAndDrop.js
-import { useState, useCallback, useEffect } from "react";
+import { useCallback, useState } from "react";
 
-const useDragAndDrop = (moveTrack) => {
-  const [state, setState] = useState({
-    itemBeingDragged: null,
-    itemHovered: null,
-    lastItemHovered: null,
-    placementDrop: null,
-    activeDroppableArea: null,
-    isDragging: false,
-  });
+const INITIAL_DRAG_STATE = {
+  itemBeingDragged: null,
+  itemHovered: null,
+  lastItemHovered: null,
+  placementDrop: null,
+  activeDroppableArea: null,
+  isDragging: false,
+};
+
+export default function useDragAndDrop(moveQueueItem) {
+  const [state, setState] = useState(INITIAL_DRAG_STATE);
+
+  const resetDragState = useCallback(() => {
+    setState(INITIAL_DRAG_STATE);
+  }, []);
 
   const handleDrop = useCallback(() => {
-    if (state.itemBeingDragged) {
-      if (state.itemHovered && state.placementDrop) {
-        // Track-to-track drop
-        moveTrack(
-          state.itemBeingDragged,
-          state.itemHovered,
-          state.placementDrop,
-          state.activeDroppableArea
-        );
-      } else if (state.activeDroppableArea) {
-        // Container-level drop
-        moveTrack(
-          state.itemBeingDragged,
-          null,
-          'below',
-          state.activeDroppableArea
-        );
-      }
-    }
-  
-    setState({
-      itemBeingDragged: null,
-      itemHovered: null,
-      lastItemHovered: null,
-      placementDrop: null,
-      activeDroppableArea: null,
-      isDragging: false,
-    });
-  }, [state, moveTrack]);
+    const {
+      itemBeingDragged,
+      itemHovered,
+      placementDrop,
+      activeDroppableArea,
+    } = state;
 
-  const handleDroppableAreaEnter = useCallback((targetArray) => {
-    setState((prev) => ({
-      ...prev,
-      activeDroppableArea: targetArray,
+    if (!itemBeingDragged) {
+      resetDragState();
+      return;
+    }
+
+    if (itemHovered && placementDrop) {
+      moveQueueItem(
+        itemBeingDragged,
+        itemHovered,
+        placementDrop,
+        activeDroppableArea,
+      );
+    } else if (activeDroppableArea) {
+      moveQueueItem(itemBeingDragged, null, "below", activeDroppableArea);
+    }
+
+    resetDragState();
+  }, [state, moveQueueItem, resetDragState]);
+
+  const handleDroppableAreaEnter = useCallback((targetContainer) => {
+    setState((currentState) => ({
+      ...currentState,
+      activeDroppableArea: targetContainer,
     }));
   }, []);
 
   const handleDroppableAreaLeave = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
+    setState((currentState) => ({
+      ...currentState,
       activeDroppableArea: null,
     }));
   }, []);
-  
+
   return [
     state,
     setState,
@@ -63,6 +64,4 @@ const useDragAndDrop = (moveTrack) => {
     handleDroppableAreaEnter,
     handleDroppableAreaLeave,
   ];
-};
-
-export default useDragAndDrop;
+}

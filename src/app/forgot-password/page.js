@@ -1,67 +1,109 @@
-// src/app/forgot-password/page.js
-
-//src/app/login/page.js
-
 "use client";
+
 import React, { useState } from "react";
-import { Button } from "@nextui-org/button";
-import { useRouter } from "next/navigation";
+import { Button, Form } from "@heroui/react";
+import Link from "next/link";
+
+import AuthCard from "../components/Auth/AuthCard";
+import AuthMessage from "../components/Auth/AuthMessage";
+import AuthTextField from "../components/Auth/AuthTextField";
+import { validateEmail } from "../components/Auth/AuthValidation";
+
 import { forgotPassword } from "../services/authService";
-import CustomInput from "../components/CustomInput";
 
 export default function ForgotPasswordPage() {
-  const [message, setMessage] = useState('');
-  const [ successful , setSuccessful ] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("error");
+  const [isLoading, setIsLoading] = useState(false);
+  const [wasSuccessful, setWasSuccessful] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  async function handleSubmit(event) {
+    event.preventDefault();
+
+    setMessage("");
+    setWasSuccessful(false);
+    setMessageType("error");
+    setIsLoading(true);
+
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get("email");
+
     try {
-        setLoading(true);
-      const result = await forgotPassword(e.target.email.value);
-      setMessage('Password reset link has been sent to your email.');
-      setSuccessful(true);
-    } catch (error) {
-      setMessage(`Unable to send password reset link: ${error.message}`);
-      setSuccessful(false);
-    }
-    setLoading(false);
-  };
+      await forgotPassword(email);
 
-return (
-    <div
-        id="forgot-password"
-        className="flex flex-col justify-between self-center rounded-lg border-2 border-purple-dark bg-green-darkest/30 p-4 text-white shadow-lg"
+      setWasSuccessful(true);
+      setMessageType("success");
+      setMessage("Password reset link sent. Check your email.");
+    } catch (error) {
+      setMessageType("error");
+      setMessage(
+        error?.message || "Unable to send password reset link. Try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  return (
+    <main
+      id="forgot-password"
+      className="flex size-full items-center justify-center p-4"
     >
-        {/* Display error message */}
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-            {!successful && (<>
-                <h1 className="text-center text-3xl text-green">Forgot your password?</h1>
-            <p className="text-center">Remember your password? <a href="/login" className="self-end text-green-light">
-                Log in here
-            </a></p>
-            <CustomInput
+      <AuthCard
+        title={wasSuccessful ? "Check Your Email" : "Forgot Password"}
+        footer={
+          <>
+            <span>Remember your password?</span>
+            <Link
+              href="/login"
+              className="text-primary hover:text-primary-hover"
+            >
+              Log in
+            </Link>
+          </>
+        }
+      >
+        <Form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <AuthMessage message={message} type={messageType} />
+
+          {!wasSuccessful && (
+            <>
+              <p className="text-center text-sm text-muted-foreground">
+                Enter your email and we&apos;ll send you a password reset link.
+              </p>
+
+              <AuthTextField
+                isRequired
                 name="email"
-                classNames={{
-                    base: "w-auto",
-                    inputWrapper:"bg-black w-auto",
-                }}
-                fullWidth={false}
                 type="email"
                 label="Email"
                 placeholder="Enter your email"
-                isDisabled={loading}
-            />
-            </>)}
-            
-            {message && <p className={`text-center ${successful ? "text-green" : "text-red"}`}>{message}</p>}{" "}
-            {!successful && (<>
-                <Button color="primary" type="submit" isLoading={loading}>
-                Reset Password
+                autoComplete="email"
+                validate={validateEmail}
+                isDisabled={isLoading}
+              />
+
+              <Button
+                type="submit"
+                className="w-full bg-foreground text-background hover:bg-foreground/80"
+                isLoading={isLoading}
+              >
+                Send Reset Link
+              </Button>
+            </>
+          )}
+
+          {wasSuccessful && (
+            <Button
+              as={Link}
+              href="/login"
+              className="w-full bg-primary text-background hover:bg-primary-hover"
+            >
+              Back to Login
             </Button>
-            </>)}
-            
-        </form>
-    </div>
-);
+          )}
+        </Form>
+      </AuthCard>
+    </main>
+  );
 }

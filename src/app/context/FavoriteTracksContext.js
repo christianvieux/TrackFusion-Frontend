@@ -1,46 +1,66 @@
-// src/context/FavoriteTracksContext.js
+"use client";
 
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { fetchFavoriteTracks } from '../services/userService';
-import { useSession } from '../context/SessionContext';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+import { fetchFavoriteTracks } from "../services/userService";
+import { useSession } from "./SessionContext";
 
 const FavoriteTracksContext = createContext({
-    favoriteTracks: [],
-    setFavoriteTracks: () => {},
+  favoriteTracks: [],
+  setFavoriteTracks: () => {},
+  refresh: () => {},
+  loading: false,
 });
 
-export const FavoriteTracksProvider = ({ children }) => {
+export function FavoriteTracksProvider({ children }) {
   const { user } = useSession();
+
   const [favoriteTracks, setFavoriteTracks] = useState([]);
   const [loading, setLoading] = useState(false);
-  const refresh = () => {
-    if (user) {
-      const fetchFavoriteTracksData = async () => {
-        setLoading(true);
-        try {
-          const tracks = await fetchFavoriteTracks(user.id);
-          setFavoriteTracks(tracks);
-        } catch (error) {
-          console.error("Error fetching favorite tracks:", error);
-        }
-        setLoading(false);
-      };
-      fetchFavoriteTracksData();
-    } else {
+
+  const refresh = useCallback(async () => {
+    if (!user?.id) {
       setFavoriteTracks([]);
+      return;
     }
-  };
+
+    try {
+      setLoading(true);
+
+      const tracks = await fetchFavoriteTracks(user.id);
+      setFavoriteTracks(tracks || []);
+    } catch (error) {
+      console.error("Error fetching favorite tracks:", error);
+      setFavoriteTracks([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.id]);
 
   useEffect(() => {
     refresh();
-  }, [user]);
-
+  }, [refresh]);
 
   return (
-    <FavoriteTracksContext.Provider value={{ favoriteTracks, setFavoriteTracks, refresh, loading }}>
+    <FavoriteTracksContext.Provider
+      value={{
+        favoriteTracks,
+        setFavoriteTracks,
+        refresh,
+        loading,
+      }}
+    >
       {children}
     </FavoriteTracksContext.Provider>
   );
-};
+}
 
-export const useFavoriteTracks = () => useContext(FavoriteTracksContext);
+export function useFavoriteTracks() {
+  return useContext(FavoriteTracksContext);
+}

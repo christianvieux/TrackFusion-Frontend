@@ -1,113 +1,103 @@
 "use client";
-import React from "react";
+
+import Link from "next/link";
+import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
+
 import UserMenu from "./UserMenu";
 
-import {
-  Navbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  NavbarMenuToggle,
-  NavbarMenu,
-  NavbarMenuItem,
-  Link,
-  Button,
-} from "@nextui-org/react";
+const pageNames = {
+  "": "Home",
+  about: "About",
+  contact: "Contact",
+  upload: "Upload",
+  analyze: "Analyze",
+  feed: "Feed",
+  myTracks: "My Tracks",
+  myFavoriteTracks: "Favorite Tracks",
+  "reset-password": "Reset Password",
+};
 
-export default function NavBar(
-  {LeftContent, className, ...props}
-) {
-  const pageNames = {
-    "": "Home",
-    about: "About",
-    contact: "Contact",
-    "reset-password": "Reset Password",
-    // Add other known paths here
-  };
-  const pathname = usePathname();
-  const basePath = pathname.split("/")[1];
-  const displayName =
-    pageNames[basePath] || basePath.replace(/^\w/, (c) => c.toUpperCase());
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+const navLinks = [
+  { label: "Upload a track", href: "/upload" },
+  { label: "Analyze a track", href: "/analyze" },
+];
 
-  const options = {
-    "Upload a track": function ({ className , ...args}) {
-      return (
-        <a
-          href="/upload"
-          className={`block rounded px-3 py-2 hover:text-pink ${className}`}
-          {...args}
-        >
-          Upload a track
-        </a>
-      );
-    },
-    "Analyze a track": function ({ className ,...args}) {
-      return (
-        <a
-          href="/analyze"
-          className={`block rounded px-3 py-2 hover:text-pink ${className}`}
-          {...args}
-        >
-          Analyze a track
-        </a>
-      );
-    },
-  };
+function getPageName(pathname) {
+  const basePath = pathname.split("/")[1] || "";
+  return pageNames[basePath] || basePath.replace(/^\w/, (char) => char.toUpperCase());
+}
 
-  const User_Menu_Item = (<UserMenu />);
-
-  
+function NavLink({ href, children, onClick }) {
   return (
-    <Navbar classNames={{"wrapper": "max-w-full px-2"}} className={`overflow-x-auto overflow-y-hidden bg-black/20 text-green ${className}`} onMenuOpenChange={setIsMenuOpen} {...props}>
-      <NavbarContent>
-        {/* Left Content */}
-        {LeftContent}
-        {/* Displaying which page the user is on */}
-        <NavbarItem>
-          <span className="flex-1 self-center whitespace-nowrap text-2xl font-semibold text-white">
-            {displayName}
-          </span>
-        </NavbarItem>
-      </NavbarContent>
+    <Link
+      href={href}
+      onClick={onClick}
+      className="rounded-lg px-3 py-2 font-semibold text-foreground transition hover:text-primary"
+    >
+      {children}
+    </Link>
+  );
+}
 
-      {/* Middle Content */}
-      <NavbarContent className="hidden mid:flex gap-4" justify="center">
-        {Object.entries(options).map(([text, Component]) => (
-          <NavbarItem key={text}>
-            <Component className="text-white" />
-          </NavbarItem>
-        ))}
-      </NavbarContent>
+export default function NavBar({ LeftContent, className = "", ...props }) {
+  const pathname = usePathname();
+  const pageName = getPageName(pathname);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-      {/* Right Content */}
-      <NavbarContent justify="end">
-        {/* User Menu */}
-        <NavbarItem className="">
-          {User_Menu_Item}
-        </NavbarItem>
+  function closeMenu() {
+    setIsMenuOpen(false);
+  }
 
-        {/* Menu Toggle */}
-        <NavbarMenuToggle
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          className="mid:hidden"
-        />
-      </NavbarContent>
+  return (
+    <header
+      className={`sticky top-0 z-50 border-b border-accent/20 bg-background/70 text-foreground backdrop-blur-md ${className}`}
+      {...props}
+    >
+      <nav className="relative flex min-h-16 w-full items-center justify-between gap-4 px-4">
+        <div className="flex min-w-0 items-center gap-3">
+          {LeftContent}
 
-      {/* Menu Items */}
-      <NavbarMenu className="sm:ml-64 w-auto bg-black/30 items-end">
-        <div className="flex flex-col h-full gap-2 items-end">
-          <NavbarMenuItem className="flex w-fit">
-          </NavbarMenuItem>
+          <h1 className="truncate text-2xl font-semibold text-foreground">
+            {pageName}
+          </h1>
+        </div>
 
-          {Object.entries(options).map(([text, Component]) => (
-            <NavbarMenuItem className="flex w-fit" key={text}>
-              <Component className="text-white" />
-            </NavbarMenuItem>
+        <div className="hidden items-center gap-4 nav:flex">
+          {navLinks.map(({ label, href }) => (
+            <NavLink key={href} href={href}>
+              {label}
+            </NavLink>
           ))}
         </div>
-      </NavbarMenu>
-    </Navbar>
+
+        <div className="flex items-center gap-3">
+          <UserMenu />
+
+          <button
+            type="button"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
+            onClick={() => setIsMenuOpen((current) => !current)}
+            className="rounded-lg p-2 text-foreground transition hover:bg-secondary nav:hidden"
+          >
+            {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
+
+        {isMenuOpen && (
+          <div className="absolute right-4 top-full z-50 mt-2 w-56 rounded-2xl border border-accent/20 bg-secondary p-2 shadow-card backdrop-blur-md nav:hidden">
+            <div className="flex flex-col gap-1">
+              {navLinks.map(({ label, href }) => (
+                <NavLink key={href} href={href} onClick={closeMenu}>
+                  {label}
+                </NavLink>
+              ))}
+            </div>
+          </div>
+        )}
+      </nav>
+    </header>
   );
 }

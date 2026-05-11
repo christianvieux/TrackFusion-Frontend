@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
 import OptionsMenu from "../components/Track_Options_Menu";
 import Pagination from "../pagination/pagination";
-import { Input } from "@nextui-org/react";
+import { Input } from "@heroui/react";
 import { useSession } from "../context/SessionContext";
 import {deleteOwnedTrack} from "../services/userService"
 

@@ -1,66 +1,68 @@
-import React, { useEffect, useState, useRef } from "react";
+'use client'
+
+import { useEffect } from 'react'
 import { DotButton, useDotButton } from './EmblaCarouselDotButton'
-import {
-  PrevButton,
-  NextButton,
-  usePrevNextButtons
-} from './EmblaCarouselArrowButtons'
+import { PrevButton, NextButton, usePrevNextButtons } from './EmblaCarouselArrowButtons'
 import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
 
-const EmblaCarousel_ = (props) => {
-  const {slides, options, custom_settings, className} = props
-  const autoPlay = custom_settings["autoPlay"] ? Autoplay({ playOnInit: true, delay: 10000 }) : null;
-  const plugins = autoPlay ? [autoPlay] : [];
-  const [emblaRef, emblaApi] = useEmblaCarousel(options, plugins);
-  
+export default function EmblaCarousel({ slides, options, custom_settings, className = '' }) {
+  const plugins = custom_settings?.autoPlay
+    ? [Autoplay({ playOnInit: true, delay: 10000 })]
+    : []
+
+  const [emblaRef, emblaApi] = useEmblaCarousel(options, plugins)
+
   useEffect(() => {
     if (emblaApi) {
-      // Access API   
-      // console.log("HI", emblaApi.slideNodes());
+      // emblaApi ready — attach any listeners here
     }
-  }, [emblaRef, options]);
-  
+  }, [emblaApi, options])
 
-  // Rest of code
   const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton(emblaApi)
-  const {
-    prevBtnDisabled,
-    nextBtnDisabled,
-    onPrevButtonClick,
-    onNextButtonClick
-  } = usePrevNextButtons(emblaApi)
+  const { prevBtnDisabled, nextBtnDisabled, onPrevButtonClick, onNextButtonClick } =
+    usePrevNextButtons(emblaApi)
 
   return (
-    <div className={`embla flex flex-col justify-center items-center gap-10 ${className}`} ref={emblaRef}>
-      <div className="embla__container w-full">
-        {slides.map((slide, index) => (
-          <div className="embla__slide" key={index}>
+    /*
+     * Outer shell fills whatever height the parent gives it (h-full).
+     * flex-col lets the slide area grow and the controls stay pinned at the bottom.
+     */
+    <div className={`flex h-full flex-col ${className}`}>
+
+      {/* Slide viewport — grows to fill all available space above controls */}
+      <div id="embla_slide_viewport" className="min-h-0 flex-1 overflow-hidden" ref={emblaRef}>
+        <div className="flex h-full">
+          {slides.map((slide, index) => (
+            <div key={index} className="h-full min-w-0 flex-[0_0_100%]">
               {slide}
-              {/* <div className="size-16 bg-black"></div> */}
-          </div>
-        ))}
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="embla__controls justify-center flex flex-wrap gap-32">
-        {/* Arrows */}
-        <div className="embla__buttons flex gap-16">
+      {/* Controls — always visible, never clipped */}
+      <div className="flex shrink-0 flex-wrap items-center justify-center gap-8 px-4 py-3">
+        {/* Prev / Next */}
+        <div className="flex items-center gap-6 text-primary">
           <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} />
           <NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} />
         </div>
+
         {/* Dots */}
-        <div className="embla__dots flex justify-center items-center gap-5">
+        <div className="flex items-center gap-3">
           {scrollSnaps.map((_, index) => (
             <DotButton
               key={index}
               onClick={() => onDotButtonClick(index)}
-              className={`bg-transparent rounded-full border-2 size-4 ${selectedIndex === index ? 'border-white' : 'border-gray'} ${index === selectedIndex ? 'embla__dot embla__dot--selected' : 'embla__dot'}`}
+              className={`size-3 rounded-full border-2 bg-transparent transition-colors ${
+                selectedIndex === index ? 'border-primary bg-primary/30' : 'border-muted-foreground/40'
+              }`}
             />
           ))}
         </div>
       </div>
+
     </div>
   )
 }
-
-export default EmblaCarousel_

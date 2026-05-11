@@ -1,143 +1,144 @@
-import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Dropdown,
-  DropdownSection,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  User,
-} from "@nextui-org/react";
-import Avatar from "./Avatar"
-import { useSession } from "../context/SessionContext";
-import { logoutUser } from "../services/authService";
-import { useRouter } from "next/navigation";
-import GearIcon from "./Icons/GearIcon";
-import UserMinusIcon from "./Icons/UserMinusIcon";
-import UserIcon from "./Icons/UserIcon";
-import UserAddIcon from "./UserAddIcon";
-import ProfileIcon from "./Icons/ProfileIcon"
-import { useUserInfo } from "../context/UserInfoContext";
+'use client'
 
+import { Dropdown, Label } from '@heroui/react'
+import { useRouter } from 'next/navigation'
 
-export default function App({ className, ...props }) {
-  const { user, setUser } = useSession();
-  const { userInfo, setUserInfo } = useUserInfo();
-  const router = useRouter();
+import { useSession } from '../context/SessionContext'
+import { useUserInfo } from '../context/UserInfoContext'
+import { logoutUser } from '../services/authService'
 
-  const handleLogoutUser = async function () {
-    try {
-      const success = await logoutUser();
+import GearIcon from './Icons/GearIcon'
+import ProfileIcon from './Icons/ProfileIcon'
+import UserIcon from './Icons/UserIcon'
+import UserMinusIcon from './Icons/UserMinusIcon'
+import UserAddIcon from './UserAddIcon'
+import UserPill from './UserPill'
 
-      if (success) {
-        setUser(null);
-        // Explicitly wait for the router to push
-        router.push("/home");
-      }
-    } catch (error) {
-      console.error("Failed to log out:", error);
+function getProfilePicture(userInfo) {
+    if (!userInfo?.profile_picture_url) return null
+
+    const version = userInfo?.updated_at
+        ? new Date(userInfo.updated_at).getTime()
+        : Date.now()
+
+    return `${userInfo.profile_picture_url}?v=${version}`
+}
+
+function getInitial(username) {
+    return username?.charAt(0)?.toUpperCase() || 'N'
+}
+
+export default function UserMenu({ className = '', ...props }) {
+    const router = useRouter()
+    const { user, setUser } = useSession()
+    const { userInfo, setUserInfo } = useUserInfo()
+
+    const username = user?.username || 'New User'
+    const profilePicture = getProfilePicture(userInfo)
+    const initial = getInitial(username)
+
+    async function handleAction(key) {
+        if (key === 'sign-in') router.push('/login')
+        if (key === 'sign-up') router.push('/signup')
+        if (key === 'profile') router.push(`/profile/${user.id}`)
+        if (key === 'settings') router.push('/settings')
+
+        if (key === 'logout') {
+            try {
+                const success = await logoutUser()
+                if (!success) return
+
+                setUser(null)
+                setUserInfo(null)
+                router.push('/home')
+            } catch (error) {
+                console.error('Failed to log out:', error)
+            }
+        }
     }
-  };
 
-  const profilePictureUrlWithVersion = userInfo?.profile_picture_url
-    ? `${userInfo.profile_picture_url}?v=${new Date(userInfo.updated_at).getTime()}`
-    : null;
-  
-  return (
-    <Dropdown
-      className={`bg-gray-darkest ${className}`}
-      placement="bottom-start"
-      {...props}
-    >
-      <DropdownTrigger>
-        <button
-          className={`flex items-center justify-center gap-2 truncate rounded-full p-2 ${(user && "text-blue-dark") || "text-green"}`}
-        >
-          <Avatar
-            className="border-2 border-green text-black"
-            size="sm"
-            showFallback
-            src={profilePictureUrlWithVersion}
-          />
-          {/* <User
-                as="button"
-                avatarProps={{
-                isBordered: true,
-                src: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-                }}
-                className="transition-transform"
-                description="@tonyreichert"
-                name="Tony Reichert"
-            /> */}
-          <p className="text-lg font-semibold">
-            {(user && user.username) || "New User"}
-          </p>
-        </button>
-      </DropdownTrigger>
-      <DropdownMenu
-        classNames={{ list: "text-green" }}
-        aria-label="Signed as @tonyreichert"
-        variant="light"
-        disabledKeys={["profile"]}
-      >
-        {!user && (
-          <DropdownItem
-            className="text-green duration-[100ms]"
-            key="Sign_in"
-            href="/login"
-            startContent={<UserIcon />}
-          >
-            Sign in
-          </DropdownItem>
-        )}
-        {!user && (
-          <DropdownItem
-            className="text-green duration-[100ms]"
-            key="Sign_up"
-            href="/signup"
-            startContent={<UserAddIcon />}
-          >
-            Create Account
-          </DropdownItem>
-        )}
-        {user && (
-          <DropdownSection
-            showDivider
-            classNames={{ divider: "duration-[100ms] bg-gray-dark" }}
-            title={`Signed as ${user.email}`}
-          >
-            <DropdownItem
-          className="duration-[100ms] hover:bg-gray-dark"
-          key="Profile"
-          href={`/profile/${user.id}`}
-          startContent={<ProfileIcon />}
-        >
-          View Profile
-        </DropdownItem>
-            <DropdownItem
-              className="duration-[100ms] hover:bg-gray-dark"
-              key="settings"
-              href="/settings"
-              startContent={<GearIcon />}
+    return (
+        <Dropdown {...props}>
+            <Dropdown.Trigger
+                aria-label="Open user menu"
+                className={`flex cursor-pointer items-center gap-2 rounded-full p-2 text-foreground transition ${
+                    className
+                }`}
             >
-              Account Settings
-            </DropdownItem>
-          </DropdownSection>
-        )}
-        {user && (
-          <DropdownSection>
-            <DropdownItem
-              className="text-danger duration-[100ms] hover:bg-gray-dark"
-              key="logout"
-              color="danger"
-              startContent={<UserMinusIcon />}
-              onPress={handleLogoutUser}
-            >
-              Log Out
-            </DropdownItem>
-          </DropdownSection>
-        )}
-      </DropdownMenu>
-    </Dropdown>
-  );
+                <UserPill userInfo={userInfo} username={username} />
+            </Dropdown.Trigger>
+
+            <Dropdown.Popover className="rounded-2xl border border-accent bg-surface p-2 shadow-card">
+                <Dropdown.Menu
+                    aria-label="User menu"
+                    onAction={handleAction}
+                    className="min-w-48"
+                >
+                    {!user && (
+                        <>
+                            <Dropdown.Item
+                                id="sign-in"
+                                textValue="Sign in"
+                                className="text-foreground hover:text-primary! "
+                            >
+                                <div className="flex items-center gap-3 rounded-lg px-2 py-1">
+                                    <UserIcon />
+                                    <Label className="text-inherit">Sign in</Label>
+                                </div>
+                            </Dropdown.Item>
+
+                            <Dropdown.Item
+                                id="sign-up"
+                                textValue="Create Account"
+                                className="text-foreground hover:text-primary!"
+                            >
+                                <div className="flex items-center gap-3 rounded-lg px-2 py-1">
+                                    <UserAddIcon />
+                                    <Label className="text-inherit">Create Account</Label>
+                                </div>
+                            </Dropdown.Item>
+                        </>
+                    )}
+
+                    {user && (
+                        <>
+                            <Dropdown.Item
+                                id="profile"
+                                textValue="View Profile"
+                                className="text-foreground hover:text-primary!"
+                            >
+                                <div className="flex items-center gap-3 rounded-lg px-2 py-1">
+                                    <ProfileIcon />
+                                    <Label className="text-inherit">View Profile</Label>
+                                </div>
+                            </Dropdown.Item>
+
+                            <Dropdown.Item
+                                id="settings"
+                                textValue="Account Settings"
+                                className="text-foreground hover:text-primary! "
+                            >
+                                <div className="flex items-center gap-3 rounded-lg px-2 py-1">
+                                    <GearIcon />
+                                    <Label className="text-inherit">Account Settings</Label>
+                                </div>
+                            </Dropdown.Item>
+
+                            <Dropdown.Item
+                                id="logout"
+                                textValue="Log Out"
+                                variant="danger"
+                                className="text-danger hover:text-danger data-[hover=true]:text-danger"
+                            >
+                                <div className="flex items-center gap-3 rounded-lg px-2 py-1 text-danger">
+                                    <UserMinusIcon />
+                                    <Label className="text-inherit">Log Out</Label>
+                                </div>
+                            </Dropdown.Item>
+                        </>
+                    )}
+                </Dropdown.Menu>
+            </Dropdown.Popover>
+        </Dropdown>
+    )
 }

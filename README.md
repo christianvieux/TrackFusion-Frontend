@@ -33,7 +33,7 @@ cp .env.example .env.local
 
 # Start development
 npm run dev
-````
+```
 
 Visit [http://localhost:3001](http://localhost:3001) to see your application.
 
@@ -82,29 +82,38 @@ Before running locally:
 
 ## Tech Stack
 
-* Next.js
-* React
-* TypeScript
-* Tailwind CSS (if you're using it, if not remove this)
-* REST API integration
+* **Framework**: Next.js 16
+* **UI Library**: React 19 with HeroUI
+* **Styling**: Tailwind CSS 4
+* **Animations**: Framer Motion
+* **HTTP Client**: Axios
+* **Search**: Fuse.js
+* **Audio Visualization**: AudioMotion Analyzer
+* **Image Processing**: browser-image-compression
+* **Carousel**: Embla Carousel
+* **Notifications**: React Hot Toast
 
 ---
 
-## Features (Current + Planned)
+## Features
 
-### Current
+### User Experience
+* **Music Discovery**: Browse and search music with fuzzy search functionality
+* **Audio Playback**: Interactive audio player with visualizer and playback controls
+* **User Authentication**: Secure login/signup with password reset capabilities
+* **User Profiles**: Customizable profile with picture uploads and settings management
 
-* Music browsing interface
-* Audio playback
-* File upload support (audio + images)
-* API integration with backend
+### Track Management
+* **Upload & Configuration**: Upload audio and image files with metadata editing
+* **Favorites System**: Save and organize favorite tracks
+* **Track Sharing**: Share tracks via modal with social features
+* **Playlist Support**: Create and manage personal music collections
 
-### Planned
-
-* Advanced playback controls
-* User playlists
-* Social sharing features
-* Improved UI/UX interactions
+### Advanced Features
+* **Audio Visualization**: Real-time audio spectrum analysis
+* **Track Analysis**: Detailed track attribute visualization and statistics
+* **Image Processing**: Optimized image compression for efficient uploads
+* **Responsive Design**: Mobile-optimized interface with smooth animations
 
 ---
 

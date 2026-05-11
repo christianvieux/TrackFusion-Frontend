@@ -1,40 +1,50 @@
-// terms.js
-"use client";
 import React from "react";
-import Link from "next/link";
 
-export default function Terms() {
+import {
+  StaticPageCard,
+  StaticPageShell,
+} from "../components/StaticPage";
+
+const usageTerms = [
+  "This is a demonstration project and not a commercial service.",
+  "Features are provided for demonstration purposes only.",
+  "User data may not be permanently stored or secured.",
+  "The service may be modified or terminated at any time.",
+];
+
+const contentGuidelines = [
+  "Users are responsible for the content they upload.",
+  "Copyrighted material should not be uploaded without permission.",
+  "Inappropriate or illegal content is strictly prohibited.",
+];
+
+function NumberedList({ items }) {
   return (
-    <div className="min-h-screen p-8 text-white">
-      <div className="mx-auto max-w-4xl bg-black/30 border-2 border-gray-dark p-4 rounded-xl">
-        <h1 className="mb-8 text-5xl font-semibold text-blue-light">Terms of Service</h1>
-        
-        <div className="space-y-6 text-lg">
-          <p>
-            Welcome to TrackFusion. This is a portfolio project created for demonstration
-            purposes. By using this service, you acknowledge that:
-          </p>
+    <ol className="list-decimal space-y-4 pl-5">
+      {items.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ol>
+  );
+}
 
-          <div className="rounded-lg bg-purple-dark/50 p-6 shadow-inner">
-            <h2 className="mb-4 text-2xl font-semibold text-blue">Usage Terms</h2>
-            <div className="space-y-4">
-              <p>1. This is a demonstration project and not a commercial service.</p>
-              <p>2. Features are provided for demonstration purposes only.</p>
-              <p>3. User data may not be permanently stored or secured.</p>
-              <p>4. The service may be modified or terminated at any time.</p>
-            </div>
-          </div>
+export default function TermsPage() {
+  return (
+    <StaticPageShell title="Terms of Service">
+      <div className="space-y-6 text-lg">
+        <p>
+          This is a portfolio project created for
+          demonstration purposes. By using this service, you acknowledge that:
+        </p>
 
-          <div className="rounded-lg bg-purple-dark/50 p-6 shadow-inner">
-            <h2 className="mb-4 text-2xl font-semibold text-blue">Content Guidelines</h2>
-            <div className="space-y-4">
-              <p>1. Users are responsible for the content they upload.</p>
-              <p>2. Copyrighted material should not be uploaded without permission.</p>
-              <p>3. Inappropriate or illegal content is strictly prohibited.</p>
-            </div>
-          </div>
-        </div>
+        <StaticPageCard title="Usage Terms">
+          <NumberedList items={usageTerms} />
+        </StaticPageCard>
+
+        <StaticPageCard title="Content Guidelines">
+          <NumberedList items={contentGuidelines} />
+        </StaticPageCard>
       </div>
-    </div>
+    </StaticPageShell>
   );
 }

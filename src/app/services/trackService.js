@@ -2,6 +2,9 @@
 import axios from 'axios';
 import Fake_Data from './fake_tracks';
 import { awsUploadService } from './awsService';
+import getApiBaseUrl from '../utils/getApiBaseUrl';
+// API base URL
+const API_BASE_URL = getApiBaseUrl();
 
 export const uploadStates = {
   PREPARING: 'PREPARING',
@@ -12,7 +15,7 @@ export const uploadStates = {
 
 export const fetchRecentTracks = async () => {
   try {
-    const response = await axios.get(`/api/tracks/public`, { withCredentials: true });
+    const response = await axios.get(`${API_BASE_URL}/tracks/public`, { withCredentials: true });
 
     console.log('response', response.data);
     return response.data;
@@ -28,7 +31,7 @@ export const fetchRecentTracks = async () => {
 
 export const updateTrack = async (trackId, updatedData) => {
   try {
-    const response = await axios.put(`/api/tracks/${trackId}`, updatedData, { withCredentials: true });
+    const response = await axios.put(`${API_BASE_URL}/tracks/${trackId}`, updatedData, { withCredentials: true });
     return response.data;
   } catch (error) {
     if (error.response && error.response.data && error.response.data.error) {
@@ -41,7 +44,7 @@ export const updateTrack = async (trackId, updatedData) => {
 
 export const fetchPopularTracks = async () => {
   try {
-    const response = await axios.get(`/api/tracks/popular`, { withCredentials: true });
+    const response = await axios.get(`${API_BASE_URL}/tracks/popular`, { withCredentials: true });
     return response.data;
   } catch (error) {
     if (error.response && error.response.data && error.response.data.error) {
@@ -58,7 +61,7 @@ const pollUploadStatus = async (jobId, onProgressChange) => {
   let retries = 0;
 
   while (retries < MAX_RETRIES) {
-    const { data: status } = await axios.get(`/api/upload/track-status/${jobId}`);
+    const { data: status } = await axios.get(`${API_BASE_URL}/upload/track-status/${jobId}`);
 
     switch (status.state) {
       case 'completed':
@@ -93,9 +96,9 @@ export const uploadTrack = async (formData, onProgressChange) => {
 
     // 2. Get presigned URLs
     const [trackUrl, trackCoverUrl] = await Promise.all([
-      fileInfo.trackFileName && axios.post("/api/aws/presigned-url", { fileName: fileInfo.trackFileName, type: 'track' })
+      fileInfo.trackFileName && axios.post(`${API_BASE_URL}/aws/presigned-url`, { fileName: fileInfo.trackFileName, type: 'track' })
       .then(({ data }) => data),
-      fileInfo.imageFileName && axios.post("/api/aws/presigned-url", {fileName: fileInfo.imageFileName, type: 'image'})
+      fileInfo.imageFileName && axios.post(`${API_BASE_URL}/aws/presigned-url`, {fileName: fileInfo.imageFileName, type: 'image'})
       .then(({ data }) => data)
     ]);
 
@@ -109,18 +112,26 @@ export const uploadTrack = async (formData, onProgressChange) => {
 
     // 4. Finalize upload
     onProgressChange?.(uploadStates.PROCESSING);
-    const { jobId } = (await axios.post("/api/upload/track", {
+    
+    // Build upload payload with only non-empty values
+    const uploadPayload = {
       trackUrl: trackUrl,
       imageUrl: trackCoverUrl,
       name: formData.get("name"),
-      artist: formData.get("artist"),
-      description: formData.get("description"),
-      genre: formData.get("genre"),
-      mood: formData.get("mood"),
-      bpm: formData.get("bpm"),
       is_private: formData.get("is_private"),
-      category: formData.get("category"),
-    })).data;
+    };
+    
+    // Only include optional fields if they have non-empty values
+    const optionalFields = ["artist", "description", "genre", "mood", "bpm", "category"];
+    optionalFields.forEach(field => {
+      const value = formData.get(field);
+      // Filter out null, undefined, empty strings, and whitespace-only strings
+      if (value && value.toString().trim() !== "") {
+        uploadPayload[field] = value;
+      }
+    });
+    
+    const { jobId } = (await axios.post(`${API_BASE_URL}/upload/track`, uploadPayload)).data;
 
     // 5. Poll for completion
     const track = await pollUploadStatus(jobId, onProgressChange);
@@ -154,7 +165,7 @@ export const testResponseTime = async () => {
 
 export const fetchAuthorizedUrl = async (trackId) => {
   try {
-    const response = await axios.get(`/api/tracks/${trackId}/authorized-url`, { withCredentials: true });
+    const response = await axios.get(`${API_BASE_URL}/tracks/${trackId}/authorized-url`, { withCredentials: true });
     
     return response.data;
   } catch (error) {
@@ -168,7 +179,7 @@ export const fetchAuthorizedUrl = async (trackId) => {
 
 export const fetchTrack = async (trackId) => {
   try {
-    const response = await axios.get(`/api/tracks/${trackId}`, { withCredentials: true });
+    const response = await axios.get(`${API_BASE_URL}/tracks/${trackId}`, { withCredentials: true });
     return response.data;
     // return Fake_Data()[0];
   } catch (error) {

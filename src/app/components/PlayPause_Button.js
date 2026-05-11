@@ -1,7 +1,7 @@
 // src/app/components/PlayPause_Button.js
 
 import React from "react";
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 import { useTrackManager } from "../context/TrackManagerContext"
 import PlayIcon from "./Icons/PlayIcon";
 import PauseIcon from "./Icons/PauseIcon";

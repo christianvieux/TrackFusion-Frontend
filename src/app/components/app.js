@@ -1,113 +1,126 @@
-"use client";
-import Footer from "./footer";
-import Sidebar from "./sidebar";
-import Nav_bar from "./nav-bar";
+'use client'
 
-import React from "react";
-import { Toaster } from "react-hot-toast";
-import AudioPlayer from "./audioPlayer";
-import { TrackManagerProvider } from "../context/TrackManagerContext";
-import { FavoriteTracksProvider } from "../context/FavoriteTracksContext";
-import { useState } from "react";
-import TrackListQueue from "./TrackListQueue/TrackListQueue";
-import { TrackListProvider } from "../context/TrackListContext";
-import { PlaybackProvider } from "../context/PlaybackContext";
-import { DeletedTracksProvider } from "../context/deletedTracksContext";
-import Head from "next/head";
-import { Menu } from "lucide-react";
+import Head from 'next/head'
+import { Menu } from 'lucide-react'
+import { Toaster } from 'react-hot-toast'
 
+import { Button, Drawer } from '@heroui/react'
 
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerBody,
-  DrawerFooter,
-  Button,
-  useDisclosure,
-} from "@nextui-org/react";
+import Footer from './Footer'
+import NavBar from './nav-bar'
+import Sidebar from './Sidebar'
 
-const DrawerModal = () => {
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
-  return (
-  <>
-    <Button className="sm:hidden text-pink" isIconOnly variant="light" onPress={onOpen}><Menu /></Button>
-    
-    <Drawer className="text-pink w-max bg-transparent" classNames={{"closeButton": "text-pink z-10"}} placement="left" isOpen={isOpen} onOpenChange={onOpenChange}>
-      <DrawerContent>
-        {(onClose) => (
-          <>
-            <DrawerBody className="w-max p-0">
-              <Sidebar className="z-0" classNames={{"logo": "mr-8"}}/>
-            </DrawerBody>
-          </>
-        )}
-      </DrawerContent>
-    </Drawer>
-    </>
-  );
-};
+import AudioPlayer from './AudioPlayer/AudioPlayer'
+import VideoBackground from './VideoBackground'
 
-// nextui
-export default function App({ children }) {
-  const [showQueue, setShowQueue] = useState(false);
+import { FavoriteTracksProvider } from '../context/FavoriteTracksContext'
+import { PlaybackProvider } from '../context/PlaybackContext'
+import { TrackListProvider } from '../context/TrackListContext'
+import { TrackManagerProvider } from '../context/TrackManagerContext'
 
-  return (
-    <>
-      <Head>
-        <link rel="stylesheet" href="/css/shooting_stars.css" />
-        <link rel="stylesheet" href="/css/home.css" />
-      </Head>
-      <DeletedTracksProvider>
+/* -------------------- */
+/* PROVIDERS */
+/* -------------------- */
+
+function AppProviders({ children }) {
+    return (
         <FavoriteTracksProvider>
-          <TrackListProvider>
-            <TrackManagerProvider>
-              <PlaybackProvider>
-                <div id="App" className="h-screen">
-                  <Toaster position="bottom-center" />
-                  <Sidebar className="fixed left-0 top-0 z-40 h-full !w-64 -translate-x-full transition-transform sm:translate-x-0"/>
-                  <div className="ml-0 flex h-full flex-col transition-all sm:ml-64">
-                    <Nav_bar LeftContent={<DrawerModal />}/>
-                    <div
-                      id="Full_Content"
-                      className="flex h-full w-full flex-col justify-between gap-4 overflow-auto"
-                    >
-                      <div
-                        id="Middle_Content"
-                        className="flex size-full gap-4 overflow-auto"
-                      >
-                        <div
-                          id="content"
-                          className="flex size-full min-w-72 flex-col overflow-auto"
-                        >
-                          {children}
-                        </div>
-
-                        {/* Queue */}
-                        <TrackListQueue
-                          className="h-full self-start"
-                          canShow={showQueue}
-                        />
-                      </div>
-
-                      <div
-                        id="Bottom_Content"
-                        className="flex flex-col items-center gap-8"
-                      >
-                        <AudioPlayer
-                          className=""
-                          {...{ showQueue, setShowQueue }}
-                        />
-                        <Footer />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </PlaybackProvider>
-            </TrackManagerProvider>
-          </TrackListProvider>
+            <TrackListProvider>
+                <TrackManagerProvider>
+                    <PlaybackProvider>{children}</PlaybackProvider>
+                </TrackManagerProvider>
+            </TrackListProvider>
         </FavoriteTracksProvider>
-      </DeletedTracksProvider>
-    </>
-  );
+    )
+}
+
+/* -------------------- */
+/* MOBILE SIDEBAR DRAWER */
+/* -------------------- */
+
+function MobileSidebarDrawer() {
+    return (
+        <Drawer>
+            <Button
+                isIconOnly
+                variant="light"
+                className="text-primary sm:hidden"
+                aria-label="Open sidebar menu"
+            >
+                <Menu size={24} />
+            </Button>
+
+            <Drawer.Backdrop>
+                <Drawer.Content placement="left" className="w-max">
+                    <Drawer.Dialog className="w-max bg-background p-0">
+                        <Drawer.Body className="p-0">
+                            <Sidebar
+                                className="h-screen !w-64"
+                                classNames={{
+                                    logo: 'mr-8',
+                                }}
+                            />
+                        </Drawer.Body>
+                    </Drawer.Dialog>
+                </Drawer.Content>
+            </Drawer.Backdrop>
+        </Drawer>
+    )
+}
+
+/* -------------------- */
+/* APP LAYOUT */
+/* -------------------- */
+
+export default function App({ children }) {
+    return (
+        <>
+            <Head>
+                <link rel="stylesheet" href="/css/shooting_stars.css" />
+            </Head>
+
+            <AppProviders>
+                <div
+                    id="App"
+                    className="relative isolate flex h-screen min-h-0 flex-col overflow-hidden text-foreground"
+                >
+                    <VideoBackground />
+
+                    <Toaster position="bottom-center" />
+
+                    <Sidebar className="fixed top-0 left-0 z-40 hidden h-full !w-64 sm:flex" />
+
+                    <div className="ml-0 flex min-h-0 flex-1 flex-col transition-all sm:ml-64">
+                        <NavBar LeftContent={<MobileSidebarDrawer />} />
+
+                        <main
+                            id="Full_Content"
+                            className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden"
+                        >
+                            <section
+                                id="content"
+                                className="flex *:max-w-full min-h-0 min-w-72 flex-1 flex-col items-center overflow-auto p-4"
+                            >
+                                {children}
+                            </section>
+
+                            <section
+                                id="Audio_Player_Section"
+                                className="hidden shrink-0 md:block"
+                            >
+                                <AudioPlayer className="mx-auto" />
+                            </section>
+
+                            <footer
+                                id="Bottom_Content"
+                                className="flex shrink-0 flex-col items-center gap-8"
+                            >
+                                <Footer />
+                            </footer>
+                        </main>
+                    </div>
+                </div>
+            </AppProviders>
+        </>
+    )
 }
