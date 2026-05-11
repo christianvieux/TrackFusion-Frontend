@@ -112,26 +112,18 @@ export const uploadTrack = async (formData, onProgressChange) => {
 
     // 4. Finalize upload
     onProgressChange?.(uploadStates.PROCESSING);
-    
-    // Build upload payload with only non-empty values
-    const uploadPayload = {
+    const { jobId } = (await axios.post(`${API_BASE_URL}/upload/track`, {
       trackUrl: trackUrl,
       imageUrl: trackCoverUrl,
       name: formData.get("name"),
+      artist: formData.get("artist"),
+      description: formData.get("description"),
+      genre: formData.get("genre"),
+      mood: formData.get("mood"),
+      bpm: formData.get("bpm"),
       is_private: formData.get("is_private"),
-    };
-    
-    // Only include optional fields if they have non-empty values
-    const optionalFields = ["artist", "description", "genre", "mood", "bpm", "category"];
-    optionalFields.forEach(field => {
-      const value = formData.get(field);
-      // Filter out null, undefined, empty strings, and whitespace-only strings
-      if (value && value.toString().trim() !== "") {
-        uploadPayload[field] = value;
-      }
-    });
-    
-    const { jobId } = (await axios.post(`${API_BASE_URL}/upload/track`, uploadPayload)).data;
+      category: formData.get("category"),
+    })).data;
 
     // 5. Poll for completion
     const track = await pollUploadStatus(jobId, onProgressChange);

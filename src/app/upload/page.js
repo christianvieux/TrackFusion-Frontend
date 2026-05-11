@@ -139,17 +139,13 @@ function UploadPage() {
 
         formData.append('trackFile', trackFile)
         formData.append('name', trackName.trim())
-        
-        // Only append description if it has a value
-        if (trackDescription && trackDescription.trim()) {
-            formData.append('description', trackDescription.trim())
-        }
-        
+        formData.append('description', trackDescription)
         formData.append('is_private', !isPublic)
 
-        Object.entries(trackMetadata).forEach(([key, value]) => {
-            // Only append metadata fields that have actual values
-            if (value !== '' && value !== null && value !== undefined) {
+        Object.keys(trackMetadata).forEach((key) => {
+            const value = trackMetadata[key]
+            // Only append if value is not empty string or empty array
+            if (value !== '' && !(Array.isArray(value) && value.length === 0)) {
                 formData.append(key, value)
             }
         })

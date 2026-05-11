@@ -1,7 +1,7 @@
 export const DEFAULT_TRACK_METADATA = {
   category: "",
-  genre: "",
-  mood: "",
+  genre: [],
+  mood: [],
   bpm: "",
 };
 
